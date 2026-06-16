@@ -29,7 +29,8 @@ canvas{display:block;max-width:100vw;max-height:100vh;image-rendering:auto;backg
 //  CONSTANTS
 // ============================================================
 const CW=800,CH=600,LX=400,LY=300,MR=16,MD=32,MG=2;
-const RECOIL_DIST=14; // BUGFIX: front-chain recoil pixel amount on match-3 explosion
+// FIXED_BUG_2: Increased recoil from 14→20px for more visible bounce-back
+const RECOIL_DIST=20,RECOIL_SPD=220;
 
 const COLORS=[
   {name:'red',   hex:'#FF3B3B',hi:'#FF8888',lo:'#991111'},
@@ -88,17 +89,18 @@ let phase='title';
 let score=0,levelScore=0,comboCount=0,maxCombo=0,currentLvl=0;
 let marbles=[],pushTimer=0;
 let launcherAngle=-Math.PI/2,curBall=0,nextBall=0;
-// BUGFIX: Multi-projectile — use array instead of single ball
 let flyingBalls=[];
 let pauseTimer=0,reverseTimer=0,accuracyTimer=0;
 let shakeX=0,shakeY=0,shakeD=0,shakeI=0;
 let particles=[],floatingTexts=[];
 let pointerX=LX,pointerY=LY-100,pointerDown=false,pointerOnCanvas=false,isTouch=false;
 let comboFlash=0,spawning=true;
-// BUGFIX: Recoil state for front-chain bounce-back on elimination
-let recoilState=null; // {frontStartIdx,recoilRemain}
+// FIXED_BUG_2: Recoil state for front-chain bounce-back
+let recoilState=null;
 let activeSnap=null;
 let skullGlow=0,levelClearTimer=0;
+// FIXED_BUG_3: Track whether spawning has been marked as complete
+let spawningComplete=false;
 
 // ============================================================
 //  AUDIO
@@ -108,7 +110,7 @@ function initAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.
 function beep(f,d,v=0.07,t='square'){if(!audioCtx)return;try{const tm=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,tm);g.gain.setValueAtTime(v,tm);g.gain.exponentialRampToValueAtTime(0.001,tm+d);o.connect(g);g.connect(audioCtx.destination);o.start(tm);o.stop(tm+d)}catch(e){}}
 function sfxShoot(){beep(800,0.06,0.05);beep(600,0.08,0.03)}
 function sfxHit(){beep(200,0.12,0.06,'triangle')}
-function sfxRecoil(){beep(100,0.1,0.08,'sawtooth');beep(60,0.15,0.06,'triangle')}
+function sfxRecoil(){beep(100,0.12,0.09,'sawtooth');beep(60,0.18,0.07,'triangle')}
 function sfxMatch(n){beep(440+n*80,0.15,0.06);setTimeout(()=>beep(660+n*100,0.12,0.05),60)}
 function sfxCombo(n){const b=440+n*60;beep(b,0.1,0.06);setTimeout(()=>beep(b*1.25,0.1,0.05),50);setTimeout(()=>beep(b*1.5,0.12,0.06),100)}
 function sfxBomb(){beep(60,0.35,0.14,'sawtooth');beep(40,0.5,0.1,'triangle')}
@@ -125,7 +127,7 @@ function spawnParts(x,y,ci,count,spread=3){const c=COLORS[ci];for(let i=0;i<coun
 function spawnSparks(x,y,count){const clrs=['#FF6600','#FFAA00','#FFDD00','#FF3300','#FFFFFF'];for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=150+Math.random()*300;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0.3+Math.random()*0.7,maxL:0.3+Math.random()*0.7,r:1+Math.random()*3,color:clrs[Math.floor(Math.random()*clrs.length)],alpha:1})}}
 function spawnIce(x,y){for(let i=0;i<4;i++){particles.push({x,y,vx:(Math.random()-0.5)*30,vy:(Math.random()-0.5)*30,life:0.6+Math.random()*0.5,maxL:0.6+Math.random()*0.5,r:3+Math.random()*4,color:'#99DDFF',alpha:0.6})}}
 function spawnSnapTrail(x,y,ci){const c=COLORS[ci];for(let i=0;i<2;i++){particles.push({x,y,vx:(Math.random()-0.5)*60,vy:(Math.random()-0.5)*60,life:0.2+Math.random()*0.3,maxL:0.2+Math.random()*0.3,r:2+Math.random()*3,color:c.hex,alpha:0.7})}}
-function spawnRecoilParticles(x,y,ci){const c=COLORS[ci];for(let i=0;i<8;i++){const a=Math.random()*Math.PI*2,s=40+Math.random()*120;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0.15+Math.random()*0.25,maxL:0.15+Math.random()*0.25,r:1.5+Math.random()*2.5,color:c.hex,alpha:1})}}
+function spawnRecoilParticles(x,y,ci){const c=COLORS[ci];for(let i=0;i<10;i++){const a=Math.random()*Math.PI*2,s=50+Math.random()*140;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0.18+Math.random()*0.3,maxL:0.18+Math.random()*0.3,r:2+Math.random()*3,color:c.hex,alpha:1})}}
 function spawnFloatText(x,y,txt,color='#FFD700',size=18){floatingTexts.push({x,y,text:txt,color,size,life:1.2,maxL:1.2})}
 
 // ============================================================
@@ -142,16 +144,13 @@ function hexToRgba(h,a){return`rgba(${parseInt(h.slice(1,3),16)},${parseInt(h.sl
 // ============================================================
 function loadLevel(idx){
   currentLvl=idx;levelCfg=LEVELS[idx];track=buildTrack(levelCfg.gen());
-  marbles=[];pushTimer=0;
-  // BUGFIX: Reset multi-projectile array on level load
-  flyingBalls=[];
+  marbles=[];pushTimer=0;flyingBalls=[];
   comboCount=0;maxCombo=0;
   pauseTimer=0;reverseTimer=0;accuracyTimer=0;
   shakeX=0;shakeY=0;shakeD=0;shakeI=0;
   particles=[];floatingTexts=[];comboFlash=0;
-  // BUGFIX: Reset recoil and snap physics
   recoilState=null;activeSnap=null;skullGlow=0;
-  levelScore=0;spawning=true;levelClearTimer=0;
+  levelScore=0;spawning=true;levelClearTimer=0;spawningComplete=false;
   curBall=randCol();nextBall=randCol();
   const sp=MD+MG,sd=MR+4;
   for(let i=0;i<levelCfg.initM;i++){const d=sd+i*sp;if(d>track.totalLen-MR)break;marbles.push({ci:randCol(),dist:d,pwr:randPwr()})}
@@ -176,10 +175,7 @@ function onPDown(e){
   }else{launcherAngle=Math.atan2(p.y-LY,p.x-LX)}
 }
 function onPMove(e){e.preventDefault();if(!pointerOnCanvas)return;const p=getLogical(e);pointerX=p.x;pointerY=p.y;launcherAngle=Math.atan2(p.y-LY,p.x-LX)}
-function onPUp(e){if(!pointerDown)return;pointerDown=false;
-  // BUGFIX: PC rapid-fire — shoot on every click, no blocking
-  if(!isTouch&&phase==='playing')shoot();
-}
+function onPUp(e){if(!pointerDown)return;pointerDown=false;if(!isTouch&&phase==='playing')shoot();}
 function onPEnter(){pointerOnCanvas=true}
 function onPLeave(){pointerOnCanvas=false;pointerDown=false}
 function onKey(e){
@@ -191,99 +187,123 @@ function onKey(e){
 function swapBalls(){const t=curBall;curBall=nextBall;nextBall=t;beep(880,0.05,0.04)}
 
 // ============================================================
-//  BUGFIX: SHOOTING — Multi-projectile with instant replenish
+//  SHOOTING — Multi-projectile
 // ============================================================
 function shoot(){
   if(phase!=='playing')return;
   const spd=accuracyTimer>0?900:600;
   const vx=Math.cos(launcherAngle)*spd,vy=Math.sin(launcherAngle)*spd;
-  // BUGFIX: Push to array — allows simultaneous flying balls
-  flyingBalls.push({
-    x:LX+Math.cos(launcherAngle)*(MR+10),y:LY+Math.sin(launcherAngle)*(MR+10),
-    vx,vy,ci:curBall,trail:[]
-  });
-  // BUGFIX: Instant replenish — next ball becomes current, new random next
-  curBall=nextBall;nextBall=randCol();
-  sfxShoot();
+  flyingBalls.push({x:LX+Math.cos(launcherAngle)*(MR+10),y:LY+Math.sin(launcherAngle)*(MR+10),vx,vy,ci:curBall,trail:[],bounceCount:0});
+  curBall=nextBall;nextBall=randCol();sfxShoot();
 }
 
 // ============================================================
-//  BUGFIX: COLLISION — Per-ball check with safe splice disposal
+//  COLLISION & INSERTION — returns insertIndex for match scan
 // ============================================================
+// FIXED_BOUNDARY_BOUNCE: 4-way full boundary bounce + bounce-count auto-destroy
 function checkFlyingCollision(fb,fbIdx){
-  // BUGFIX: Out-of-bounds disposal — splice ball if it leaves canvas
-  if(fb.x<-60||fb.x>CW+60||fb.y<-60||fb.y>CH+60){
-    flyingBalls.splice(fbIdx,1);return true;
-  }
-  // Wall bounce
-  if(fb.x<MR||fb.x>CW-MR){fb.vx*=-1;fb.x=Math.max(MR,Math.min(CW-MR,fb.x))}
-  if(fb.y<MR||fb.y>CH-MR){fb.vy*=-1;fb.y=Math.max(MR,Math.min(CH-MR,fb.y))}
-  // Check collision with chain marbles
+  // r = MR = 16, canvas = 800x600
+  // FIXED_BOUNDARY_BOUNCE: Left wall  — ball.x - r <= 0  → reverse vx, clamp
+  if(fb.x-MR<=0){fb.vx=-fb.vx;fb.x=MR;fb.bounceCount++;}
+  // FIXED_BOUNDARY_BOUNCE: Right wall — ball.x + r >= 800 → reverse vx, clamp
+  else if(fb.x+MR>=CW){fb.vx=-fb.vx;fb.x=CW-MR;fb.bounceCount++;}
+  // FIXED_BOUNDARY_BOUNCE: Top wall   — ball.y - r <= 0  → reverse vy, clamp
+  if(fb.y-MR<=0){fb.vy=-fb.vy;fb.y=MR;fb.bounceCount++;}
+  // FIXED_BOUNDARY_BOUNCE: Bottom wall — ball.y + r >= 600 → reverse vy, clamp
+  else if(fb.y+MR>=CH){fb.vy=-fb.vy;fb.y=CH-MR;fb.bounceCount++;}
+  // FIXED_BOUNDARY_BOUNCE: Auto-destroy after 5+ wall bounces (missed shot memory safety)
+  if(fb.bounceCount>5){flyingBalls.splice(fbIdx,1);return -1;}
+  // FIXED_BOUNDARY_BOUNCE: Extreme OOB safety net
+  if(fb.x<-100||fb.x>CW+100||fb.y<-100||fb.y>CH+100){flyingBalls.splice(fbIdx,1);return -1;}
   let best=-1,bestD=Infinity;
   for(let i=0;i<marbles.length;i++){if(isInTunnel(marbles[i].dist))continue;const mp=getMPos(marbles[i]);const d=Math.hypot(fb.x-mp.x,fb.y-mp.y);if(d<MD&&d<bestD){bestD=d;best=i}}
   if(best>=0){
-    let insD=marbles[best].dist,minD=Infinity;
-    for(const s of track.segs){
-      const dx=s.x2-s.x1,dy=s.y2-s.y1,lenSq=dx*dx+dy*dy;if(lenSq===0)continue;
-      const t=Math.max(0,Math.min(1,((fb.x-s.x1)*dx+(fb.y-s.y1)*dy)/lenSq));
-      const cx=s.x1+t*dx,cy=s.y1+t*dy,d=(fb.x-cx)**2+(fb.y-cy)**2;
-      if(d<minD){minD=d;insD=s.cum+t*s.len}
-    }
-    insD=Math.max(MR,Math.min(track.totalLen-MR,insD));
+    // FIXED_BUG_1: Use the collision marble's position, not a track-wide search
+    // Determine insert side based on flying ball's approach direction
+    const m=marbles[best];
+    let insD=m.dist;
+    const approachAngle=Math.atan2(fb.vy,fb.vx);
+    const trackAngle=Math.atan2(fb.y-getMPos(m).y,fb.x-getMPos(m).x);
+    // If ball approaches from start-direction, insert before; else insert after
+    const dot=Math.cos(approachAngle)*Math.cos(trackAngle)+Math.sin(approachAngle)*Math.sin(trackAngle);
+    if(dot>0){insD=Math.max(MR,m.dist-MD*0.6)}else{insD=Math.min(track.totalLen-MR,m.dist+MD*0.6)}
     const nm={ci:fb.ci,dist:insD,pwr:PWRS.NONE};
     let idx=marbles.findIndex(mb=>mb.dist>insD);if(idx<0)idx=marbles.length;
     marbles.splice(idx,0,nm);
     for(let i=idx-1;i>=0;i--){const ed=marbles[i+1].dist-MD-MG;if(marbles[i].dist>ed)marbles[i].dist=ed;else break}
     for(let i=idx+1;i<marbles.length;i++){const ed=marbles[i-1].dist+MD+MG;if(marbles[i].dist<ed)marbles[i].dist=ed;else break}
-    sfxHit();spawnParts(fb.x,fb.y,fb.ci,6,1.5);
-    // BUGFIX: Safe removal from array by index
-    flyingBalls.splice(fbIdx,1);return true;
+    sfxHit();spawnParts(fb.x,fb.y,fb.ci,6,1.5);flyingBalls.splice(fbIdx,1);
+    // FIXED_BUG_1: return insertion index for immediate bidirectional match scan
+    return idx;
   }
-  return false;
+  return -1;
 }
 
 // ============================================================
-//  MATCH-3 DETECTION (with recoil trigger)
+//  FIXED_BUG_1: Bidirectional Match-3 Scan from insertion point
+//  Scans LEFT and RIGHT from centerIdx, counts consecutive same-color
+//  marbles. Removes them if count>=3. Triggers recoil on front section.
+//  Handles edge cases: first marble, last marble, single marble.
 // ============================================================
-function checkMatches(){
-  let found=false;
-  for(let i=0;i<marbles.length;i++){
-    const c=marbles[i].ci;let j=i;while(j<marbles.length&&marbles[j].ci===c)j++;
-    const cnt=j-i;
-    if(cnt>=3){
-      found=true;comboCount++;
-      let sx=0,sy=0;for(let k=i;k<j;k++){const mp=getMPos(marbles[k]);sx+=mp.x;sy+=mp.y}
-      const cx=sx/cnt,cy=sy/cnt;
-      let ap=null;for(let k=i;k<j;k++){if(marbles[k].pwr){ap=marbles[k].pwr;break}}
-      for(let k=i;k<j;k++){const mp=getMPos(marbles[k]);spawnParts(mp.x,mp.y,marbles[k].ci,14,2.5)}
+function scanAndRemove(centerIdx){
+  if(centerIdx<0||centerIdx>=marbles.length)return false;
+  const c=marbles[centerIdx].ci;
+  // Scan LEFT from center
+  let left=centerIdx;
+  while(left>0&&marbles[left-1].ci===c)left--;
+  // Scan RIGHT from center
+  let right=centerIdx;
+  while(right<marbles.length-1&&marbles[right+1].ci===c)right++;
+  const cnt=right-left+1;
+  if(cnt<3)return false;
 
-      // BUGFIX: Store the front-start index BEFORE splice, for recoil
-      const frontStartIdx=i; // after splice, front section will be at this index
+  // Found match-3+ — increment combo
+  comboCount++;
+  if(comboCount>maxCombo)maxCombo=comboCount;
 
-      marbles.splice(i,cnt);
+  // Calculate center for effects
+  let sx=0,sy=0;
+  for(let k=left;k<=right;k++){const mp=getMPos(marbles[k]);sx+=mp.x;sy+=mp.y}
+  const cx=sx/cnt,cy=sy/cnt;
 
-      // BUGFIX: Front-chain recoil — front section bounces backward from explosion
-      if(marbles.length>frontStartIdx){
-        recoilState={frontStartIdx,recoilRemain:RECOIL_DIST};
-        sfxRecoil();
-        // Spawn recoil particles at the gap
-        const fp=getMPos(marbles[frontStartIdx]);
-        spawnRecoilParticles(fp.x,fp.y,marbles[frontStartIdx].ci);
-      }
+  // Check for power-ups
+  let ap=null;
+  for(let k=left;k<=right;k++){if(marbles[k].pwr){ap=marbles[k].pwr;break}}
 
-      const base=cnt*10;const bonus=comboCount>1?comboCount*8:0;const earned=base+bonus;
-      score+=earned;levelScore+=earned;if(comboCount>maxCombo)maxCombo=comboCount;
-      let txt='+'+earned;if(comboCount>1)txt='Combo x'+comboCount+'! +'+earned;
-      spawnFloatText(cx,cy,txt,comboCount>1?'#FF6600':'#FFD700',comboCount>1?22:16);
-      if(comboCount>=2){comboFlash=0.3;sfxCombo(comboCount)}else{sfxMatch(cnt)}
-      if(ap===PWRS.BOMB)activateBomb(cx,cy);
-      else if(ap===PWRS.PAUSE){pauseTimer=5;sfxPower()}
-      else if(ap===PWRS.REVERSE){reverseTimer=3;sfxPower()}
-      else if(ap===PWRS.ACCURACY){accuracyTimer=6;sfxPower()}
-      updateUI();break;
+  // Spawn particles per marble
+  for(let k=left;k<=right;k++){const mp=getMPos(marbles[k]);spawnParts(mp.x,mp.y,marbles[k].ci,14,2.5)}
+
+  // FIXED_BUG_2: Store frontStart BEFORE splice for recoil
+  const frontStartIdx=left;
+
+  // Remove matched marbles
+  marbles.splice(left,cnt);
+
+  // FIXED_BUG_2: Front-chain recoil — bounces backward from explosion force
+  if(marbles.length>frontStartIdx){
+    recoilState={frontStartIdx,recoilRemain:RECOIL_DIST};
+    sfxRecoil();
+    if(marbles.length>frontStartIdx){
+      const fp=getMPos(marbles[frontStartIdx]);
+      spawnRecoilParticles(fp.x,fp.y,marbles[frontStartIdx].ci);
     }
   }
-  return found;
+
+  // Score
+  const base=cnt*10;const bonus=comboCount>1?comboCount*8:0;const earned=base+bonus;
+  score+=earned;levelScore+=earned;
+  let txt='+'+earned;if(comboCount>1)txt='Combo x'+comboCount+'! +'+earned;
+  spawnFloatText(cx,cy,txt,comboCount>1?'#FF6600':'#FFD700',comboCount>1?22:16);
+  if(comboCount>=2){comboFlash=0.3;sfxCombo(comboCount)}else{sfxMatch(cnt)}
+
+  // Activate power-up
+  if(ap===PWRS.BOMB)activateBomb(cx,cy);
+  else if(ap===PWRS.PAUSE){pauseTimer=5;sfxPower()}
+  else if(ap===PWRS.REVERSE){reverseTimer=3;sfxPower()}
+  else if(ap===PWRS.ACCURACY){accuracyTimer=6;sfxPower()}
+
+  updateUI();
+  return true;
 }
 
 function activateBomb(x,y){
@@ -294,31 +314,28 @@ function activateBomb(x,y){
 }
 
 // ============================================================
-//  BUGFIX: RECOIL ANIMATION — Front chain bounce-back
+//  FIXED_BUG_2: Recoil Animation — Front chain bounces backward
 // ============================================================
 function updateRecoil(dt){
   if(!recoilState)return false;
   const dtc=Math.min(dt,0.1);
-  const recoilSpd=280; // pixels per second
-  const move=Math.min(recoilSpd*dtc,recoilState.recoilRemain);
-  // Move front section backward (toward start) for explosive recoil
+  const move=Math.min(RECOIL_SPD*dtc,recoilState.recoilRemain);
   for(let j=recoilState.frontStartIdx;j<marbles.length;j++)marbles[j].dist-=move;
   recoilState.recoilRemain-=move;
-  if(recoilState.recoilRemain<=0.5){recoilState=null;return true} // recoil complete
+  if(recoilState.recoilRemain<=0.5){recoilState=null;return true}
   return false;
 }
 
 // ============================================================
-//  SNAP-BACK SYSTEM (Animated magnetic attraction)
+//  SNAP-BACK — Magnetic attraction after recoil
 // ============================================================
 function findSnapBack(){
-  if(activeSnap||recoilState)return false; // BUGFIX: wait for recoil to finish
+  if(activeSnap||recoilState)return false; // wait for recoil to finish
   for(let i=1;i<marbles.length;i++){
     const gap=marbles[i].dist-marbles[i-1].dist;
     if(gap>MD+MG+6){
       if(marbles[i-1].ci===marbles[i].ci){
-        const remain=gap-(MD+MG);
-        activeSnap={rearEnd:i-1,frontStart:i,gapRemain:remain,snapSpd:levelCfg.spd*3};
+        activeSnap={rearEnd:i-1,frontStart:i,gapRemain:gap-(MD+MG),snapSpd:levelCfg.spd*3};
         sfxSnap();if(comboCount===0)comboCount=1;
         return true;
       }
@@ -336,27 +353,36 @@ function updateSnapBack(dt){
   if(activeSnap.gapRemain<=0.5){
     const tg=marbles[activeSnap.frontStart].dist-MD-MG,off=tg-marbles[activeSnap.rearEnd].dist;
     for(let i=0;i<=activeSnap.rearEnd;i++)marbles[i].dist+=off;
-    activeSnap=null;return true;
+    activeSnap=null;
+    // FIXED_BUG_2: After snap completes, immediately scan for cascading matches
+    for(let i=0;i<marbles.length;i++){if(scanAndRemove(i))break;}
+    return true;
   }
   return false;
 }
 
 // ============================================================
-//  MATCH RESOLUTION (Cascading)
+//  FIXED_BUG_1+2: Match Resolution — runs EVERY frame, not blocked
+//  by flying balls. Handles cascading combos + recoil + snap-back.
 // ============================================================
 function processMatches(){
-  // BUGFIX: Don't process during recoil or snap animations; also check flyingBalls array
-  if(flyingBalls.length>0||recoilState||activeSnap)return;
+  // FIXED_BUG_1: Removed flyingBalls.length>0 guard — match detection now runs
+  // immediately after each ball hits, even if other balls are still airborne.
+  // Only block during active physics animations (recoil/snap).
+  if(recoilState||activeSnap)return;
+
   let anyM=false;
-  for(let iter=0;iter<15;iter++){
-    const hadM=checkMatches();
-    // checkMatches may have started a recoil; if so, stop and wait
-    if(recoilState)break;
-    const hadS=findSnapBack();
-    if(!hadM&&!hadS)break;
-    if(hadM)anyM=true;
-    // findSnapBack may have started a snap; if so, stop and wait
-    if(activeSnap)break;
+  // FIXED_BUG_1: Scan entire chain for matches (handles all groups)
+  for(let iter=0;iter<20;iter++){
+    let hadM=false;
+    for(let i=0;i<marbles.length;i++){
+      if(scanAndRemove(i)){hadM=true;anyM=true;break;}
+    }
+    if(!hadM)break;
+    // FIXED_BUG_2: After each match removal, try snap-back
+    // (recoil blocks snap-back until animation completes)
+    if(!recoilState&&!activeSnap)findSnapBack();
+    if(recoilState||activeSnap)break;
   }
   if(!anyM&&comboCount>0){if(comboCount>maxCombo)maxCombo=comboCount;comboCount=0;updateUI()}
 }
@@ -373,13 +399,11 @@ function update(dt){
   if(shakeD>0){shakeD-=dtc;shakeX=(Math.random()-0.5)*shakeI*2;shakeY=(Math.random()-0.5)*shakeI*2;shakeI*=0.88;if(shakeD<=0){shakeX=0;shakeY=0}}
   if(pauseTimer>0&&Math.random()<0.3){const mx=Math.random()*CW,my=Math.random()*CH;spawnIce(mx,my)}
 
-  let mv=levelCfg.spd;if(pauseTimer>0)mv=0;if(reverseTimer>0)mv=-levelCfg.spd*1.5;
-
-  // BUGFIX: Animate recoil FIRST (sequential with snap)
-  let recoilDone=false;
-  if(recoilState){recoilDone=updateRecoil(dtc)}
+  // FIXED_BUG_2: Animate recoil FIRST, then snap
+  if(recoilState)updateRecoil(dtc);
 
   // Normal chain movement (skip rear section during active snap)
+  let mv=levelCfg.spd;if(pauseTimer>0)mv=0;if(reverseTimer>0)mv=-levelCfg.spd*1.5;
   if(mv!==0){
     for(let i=0;i<marbles.length;i++){
       if(activeSnap&&i<=activeSnap.rearEnd)continue;
@@ -387,9 +411,10 @@ function update(dt){
     }
   }
 
-  // Animated snap-back (only if recoil is done)
-  if(activeSnap&&!recoilState){const closed=updateSnapBack(dtc);if(closed)processMatches()}
+  // Animated snap-back
+  if(activeSnap&&!recoilState)updateSnapBack(dtc);
 
+  // Clamp & lose check
   for(const m of marbles){if(m.dist<MR)m.dist=MR}
   for(const m of marbles){if(m.dist>=track.totalLen-MR){phase='lose';sfxLose();return}}
 
@@ -405,16 +430,28 @@ function update(dt){
       }
     }
   }
-  if(spawning&&levelScore>=levelCfg.target){spawning=false}
+  // FIXED_BUG_3: Mark spawning complete when target score reached
+  if(spawning&&levelScore>=levelCfg.target){spawning=false;spawningComplete=true}
 
-  // BUGFIX: Iterate flyingBalls array — reverse for safe splice removal
+  // Flying balls — reverse iteration for safe splice
   for(let i=flyingBalls.length-1;i>=0;i--){
     const fb=flyingBalls[i];
     fb.x+=fb.vx*dtc;fb.y+=fb.vy*dtc;
     if(accuracyTimer>0){trailTimer+=dtc;if(trailTimer>0.03){trailTimer=0;fb.trail=fb.trail||[];fb.trail.push({x:fb.x,y:fb.y,life:0.2,maxL:0.2});if(fb.trail.length>15)fb.trail.shift()}}
-    checkFlyingCollision(fb,i);
+    // FIXED_BUG_1: Immediately scan for matches after successful insertion
+    const insIdx=checkFlyingCollision(fb,i);
+    if(insIdx>=0){
+      // FIXED_BUG_1: Bidirectional scan from insertion point — handles
+      // edge cases (first/last marble, single marble) correctly
+      scanAndRemove(insIdx);
+      // After scan (which may set recoilState), check for cascading
+      if(!recoilState&&!activeSnap){
+        // Scan ALL positions for additional matches created by push
+        for(let j=0;j<marbles.length;j++){if(scanAndRemove(j))break;}
+      }
+    }
   }
-  // BUGFIX: Update trails for ALL flying balls
+  // Update trails
   for(const fb of flyingBalls){if(fb.trail){for(const t of fb.trail)t.life-=dtc;fb.trail=fb.trail.filter(t=>t.life>0)}}
 
   // Particles
@@ -427,14 +464,14 @@ function update(dt){
   let nearEnd=false;for(const m of marbles){if(m.dist>track.totalLen-80){nearEnd=true;break}}
   skullGlow+=(nearEnd?1:-1)*dtc*3;skullGlow=Math.max(0,Math.min(1,skullGlow));
 
-  // BUGFIX: Level clear checks flyingBalls.length (not single flying)
-  if(marbles.length===0&&flyingBalls.length===0&&levelScore>=levelCfg.target){
+  // FIXED_BUG_3: Level clear — spawning must be complete AND all marbles cleared
+  if(spawningComplete&&marbles.length===0&&flyingBalls.length===0){
     if(levelClearTimer===0)sfxLevelClear();
     levelClearTimer+=dtc;
     if(levelClearTimer>0.6){phase='levelClear';levelClearTimer=0}
   }
 
-  // Cascading match resolution
+  // Cascading match resolution (catches any remaining matches)
   processMatches();
 }
 
@@ -496,7 +533,6 @@ function drawLauncher(){
   ctx.fillStyle='rgba(180,230,150,0.25)';ctx.beginPath();ctx.ellipse(LX-2,LY+6,12,8,0,0,Math.PI*2);ctx.fill();
   if(accuracyTimer>0){const pulse=0.5+0.5*Math.sin(Date.now()/130),lx=LX+Math.cos(launcherAngle)*42,ly=LY+Math.sin(launcherAngle)*42;ctx.strokeStyle=`rgba(255,${Math.floor(60+100*pulse)},50,${0.35+0.3*pulse})`;ctx.lineWidth=2.5+pulse;ctx.setLineDash([10,6]);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(LX+Math.cos(launcherAngle)*600,LY+Math.sin(launcherAngle)*600);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=`rgba(255,100,50,${0.5+0.4*pulse})`;ctx.beginPath();ctx.arc(lx,ly,5,0,Math.PI*2);ctx.fill()}
 }
-// BUGFIX: Render ALL flying balls from the array
 function drawFlyingBalls(){
   for(const fb of flyingBalls){
     if(fb.trail&&fb.trail.length>0){for(const t of fb.trail){const a=(t.life/t.maxL)*0.45,r=MR*(t.life/t.maxL)*0.7;ctx.fillStyle=hexToRgba(COLORS[fb.ci].hex,a);ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill()}}
@@ -510,7 +546,8 @@ function drawProgressBar(){
   const pct=Math.min(1,levelScore/levelCfg.target);if(pct>0){const fw=(bw-4)*pct,fg=ctx.createLinearGradient(bx,0,bx+bw,0);fg.addColorStop(0,'#FF6600');fg.addColorStop(0.5,'#FFD700');fg.addColorStop(1,'#FFEE44');ctx.fillStyle=fg;ctx.beginPath();roundRect(bx+2,by+2,fw,bh-4,br-2);ctx.fill();ctx.fillStyle='rgba(255,255,255,0.2)';ctx.beginPath();roundRect(bx+2,by+2,fw,(bh-4)/2,br-2);ctx.fill()}
   const segs=8,sw=bw/segs;for(let i=1;i<segs;i++){ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(bx+i*sw,by+2);ctx.lineTo(bx+i*sw,by+bh-2);ctx.stroke()}
   ctx.fillStyle='#fff';ctx.font='bold 12px "Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.fillText(`${Math.floor(pct*100)}%`,bx+bw/2,by+bh-2);
-  if(!spawning&&marbles.length>0){ctx.fillStyle='#FFD700';ctx.font='bold 13px "Microsoft YaHei",sans-serif';ctx.fillText('清空所有滾珠即可過關！',bx+bw/2,by+bh+16)}
+  // FIXED_BUG_3: Show "stop spawning" message only when target reached
+  if(spawningComplete&&marbles.length>0){ctx.fillStyle='#FFD700';ctx.font='bold 13px "Microsoft YaHei",sans-serif';ctx.fillText('進度100%！清空所有滾珠即可過關！',bx+bw/2,by+bh+16)}
 }
 function drawOverlays(){
   if(pauseTimer>0){const a=0.08+0.04*Math.sin(Date.now()/300),g=ctx.createRadialGradient(CW/2,CH/2,180,CW/2,CH/2,500);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(50,100,200,${a})`);ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);ctx.fillStyle=`rgba(140,200,255,${0.45+0.2*Math.sin(Date.now()/400)})`;ctx.font='bold 18px "Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.fillText('⏸ 暫停 '+Math.ceil(pauseTimer)+'s',CW/2,CH-28)}
@@ -522,10 +559,7 @@ function render(){
   ctx.save();if(shakeD>0)ctx.translate(shakeX,shakeY);
   drawTrack();
   for(const m of marbles){const mp=getMPos(m);drawMarble(mp.x,mp.y,m.ci,m.pwr,isInTunnel(m.dist)?0.3:1)}
-  drawLauncher();
-  // BUGFIX: Draw all flying balls
-  drawFlyingBalls();
-  drawParticles();drawFloatTexts();ctx.restore();drawOverlays();
+  drawLauncher();drawFlyingBalls();drawParticles();drawFloatTexts();ctx.restore();drawOverlays();
   if(phase==='playing'||phase==='levelClear')drawProgressBar();
   if(phase==='title')drawTitle();else if(phase==='win')drawWin();else if(phase==='lose')drawLose();else if(phase==='levelClear')drawLevelClear();
   if(isTouch&&phase==='playing'){ctx.fillStyle='rgba(255,255,255,0.35)';ctx.font='11px "Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.fillText('點擊中央切換',LX,LY+50)}
