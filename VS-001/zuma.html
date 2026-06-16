@@ -101,24 +101,123 @@ let activeSnap=null;
 let skullGlow=0,levelClearTimer=0;
 // FIXED_BUG_3: Track whether spawning has been marked as complete
 let spawningComplete=false;
+// UPGRADE_1: Swap animation state for launcher balls
+let swapAnim=null; // {progress:0-1, duration:0.15}
+// UPGRADE_2: Suction animation state for dying marble
+let suctionState=null; // {marble, startX, startY, startDist, progress:0-1, duration:0.4}
 
 // ============================================================
-//  AUDIO
+//  UPGRADE_4: Web Audio Synthesized Sound Effects (No External Files)
 // ============================================================
 let audioCtx=null;
 function initAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume()}
-function beep(f,d,v=0.07,t='square'){if(!audioCtx)return;try{const tm=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,tm);g.gain.setValueAtTime(v,tm);g.gain.exponentialRampToValueAtTime(0.001,tm+d);o.connect(g);g.connect(audioCtx.destination);o.start(tm);o.stop(tm+d)}catch(e){}}
-function sfxShoot(){beep(800,0.06,0.05);beep(600,0.08,0.03)}
-function sfxHit(){beep(200,0.12,0.06,'triangle')}
-function sfxRecoil(){beep(100,0.12,0.09,'sawtooth');beep(60,0.18,0.07,'triangle')}
-function sfxMatch(n){beep(440+n*80,0.15,0.06);setTimeout(()=>beep(660+n*100,0.12,0.05),60)}
-function sfxCombo(n){const b=440+n*60;beep(b,0.1,0.06);setTimeout(()=>beep(b*1.25,0.1,0.05),50);setTimeout(()=>beep(b*1.5,0.12,0.06),100)}
-function sfxBomb(){beep(60,0.35,0.14,'sawtooth');beep(40,0.5,0.1,'triangle')}
-function sfxPower(){beep(1000,0.08,0.05);setTimeout(()=>beep(1200,0.08,0.04),60);setTimeout(()=>beep(1400,0.1,0.05),120)}
-function sfxSnap(){beep(300,0.15,0.06,'triangle');setTimeout(()=>beep(500,0.1,0.05),80)}
-function sfxWin(){beep(523,0.15,0.06);setTimeout(()=>beep(659,0.15,0.06),120);setTimeout(()=>beep(784,0.15,0.06),240);setTimeout(()=>beep(1047,0.35,0.09),360)}
-function sfxLose(){beep(300,0.2,0.09,'sawtooth');setTimeout(()=>beep(200,0.3,0.1,'sawtooth'),150);setTimeout(()=>beep(100,0.4,0.12,'sawtooth'),350)}
-function sfxLevelClear(){beep(660,0.12,0.06);setTimeout(()=>beep(880,0.12,0.06),100);setTimeout(()=>beep(1100,0.12,0.06),200);setTimeout(()=>beep(1320,0.2,0.08),300);setTimeout(()=>beep(1760,0.4,0.1),450)}
+
+// UPGRADE_4: Shoot sound — triangle wave, 400Hz→100Hz in 0.1s (Pew!)
+function playShootSound(){
+  if(!audioCtx)return;
+  const t=audioCtx.currentTime;
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.type='triangle';
+  osc.frequency.setValueAtTime(400,t);
+  osc.frequency.exponentialRampToValueAtTime(100,t+0.1);
+  gain.gain.setValueAtTime(0.08,t);
+  gain.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+  osc.connect(gain);gain.connect(audioCtx.destination);
+  osc.start(t);osc.stop(t+0.1);
+}
+
+// UPGRADE_4: Insert sound — sine wave, 150Hz, 0.05s fadeout (Thud!)
+function playInsertSound(){
+  if(!audioCtx)return;
+  const t=audioCtx.currentTime;
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.type='sine';
+  osc.frequency.setValueAtTime(150,t);
+  gain.gain.setValueAtTime(0.1,t);
+  gain.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+  osc.connect(gain);gain.connect(audioCtx.destination);
+  osc.start(t);osc.stop(t+0.05);
+}
+
+// UPGRADE_4: Combo eliminate sound — square wave + noise, pitch scales with combo
+function playComboEliminateSound(comboCount){
+  if(!audioCtx)return;
+  const t=audioCtx.currentTime;
+  const baseFreq=440;
+  const freq=baseFreq*Math.pow(1.15,comboCount-1); // Each combo ×1.15
+  
+  // Square wave
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.type='square';
+  osc.frequency.setValueAtTime(freq,t);
+  gain.gain.setValueAtTime(0.07,t);
+  gain.gain.exponentialRampToValueAtTime(0.001,t+0.15);
+  osc.connect(gain);gain.connect(audioCtx.destination);
+  osc.start(t);osc.stop(t+0.15);
+  
+  // White noise burst
+  const bufferSize=audioCtx.sampleRate*0.1;
+  const buffer=audioCtx.createBuffer(1,bufferSize,audioCtx.sampleRate);
+  const data=buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++)data[i]=(Math.random()*2-1)*0.3;
+  const noise=audioCtx.createBufferSource();
+  const noiseGain=audioCtx.createGain();
+  noise.buffer=buffer;
+  noiseGain.gain.setValueAtTime(0.05,t);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+  noise.connect(noiseGain);noiseGain.connect(audioCtx.destination);
+  noise.start(t);noise.stop(t+0.1);
+}
+
+// UPGRADE_4: Game over sound — descending chord
+function playGameOverSound(){
+  if(!audioCtx)return;
+  const t=audioCtx.currentTime;
+  const freqs=[300,200,100];
+  freqs.forEach((f,i)=>{
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type='sawtooth';
+    osc.frequency.setValueAtTime(f,t+i*0.15);
+    gain.gain.setValueAtTime(0.1,t+i*0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+i*0.15+0.4);
+    osc.connect(gain);gain.connect(audioCtx.destination);
+    osc.start(t+i*0.15);osc.stop(t+i*0.15+0.4);
+  });
+}
+
+// UPGRADE_4: Level clear sound — ascending chord
+function playLevelClearSound(){
+  if(!audioCtx)return;
+  const t=audioCtx.currentTime;
+  const freqs=[523,659,784,1047]; // C5, E5, G5, C6
+  freqs.forEach((f,i)=>{
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(f,t+i*0.1);
+    gain.gain.setValueAtTime(0.08,t+i*0.1);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+i*0.1+0.3);
+    osc.connect(gain);gain.connect(audioCtx.destination);
+    osc.start(t+i*0.1);osc.stop(t+i*0.1+0.3);
+  });
+}
+
+// Legacy compatibility wrappers
+function sfxShoot(){playShootSound()}
+function sfxHit(){playInsertSound()}
+function sfxRecoil(){if(!audioCtx)return;const t=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sawtooth';o.frequency.setValueAtTime(100,t);g.gain.setValueAtTime(0.09,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.12);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+0.12)}
+function sfxMatch(n){if(!audioCtx)return;const t=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(440+n*80,t);g.gain.setValueAtTime(0.06,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.15);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+0.15)}
+function sfxCombo(n){playComboEliminateSound(n)}
+function sfxBomb(){if(!audioCtx)return;const t=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sawtooth';o.frequency.setValueAtTime(60,t);g.gain.setValueAtTime(0.14,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.35);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+0.35)}
+function sfxPower(){if(!audioCtx)return;const t=audioCtx.currentTime;[1000,1200,1400].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(f,t+i*0.06);g.gain.setValueAtTime(0.05,t+i*0.06);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.06+0.08);o.connect(g);g.connect(audioCtx.destination);o.start(t+i*0.06);o.stop(t+i*0.06+0.08)})}
+function sfxSnap(){if(!audioCtx)return;const t=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';o.frequency.setValueAtTime(300,t);g.gain.setValueAtTime(0.06,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.15);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+0.15)}
+function sfxWin(){playLevelClearSound()}
+function sfxLose(){playGameOverSound()}
+function sfxLevelClear(){playLevelClearSound()}
 
 // ============================================================
 //  PARTICLES
@@ -149,7 +248,7 @@ function loadLevel(idx){
   pauseTimer=0;reverseTimer=0;accuracyTimer=0;
   shakeX=0;shakeY=0;shakeD=0;shakeI=0;
   particles=[];floatingTexts=[];comboFlash=0;
-  recoilState=null;activeSnap=null;skullGlow=0;
+  recoilState=null;activeSnap=null;skullGlow=0;suctionState=null;
   levelScore=0;spawning=true;levelClearTimer=0;spawningComplete=false;
   curBall=randCol();nextBall=randCol();
   const sp=MD+MG,sd=MR+4;
@@ -184,7 +283,14 @@ function onKey(e){
   if(e.code==='KeyR'&&(phase==='win'||phase==='lose'))restartGame();
   if(e.code==='Enter'&&(phase==='title'||phase==='levelClear')){if(phase==='title')startGame();else nextLevel();}
 }
-function swapBalls(){const t=curBall;curBall=nextBall;nextBall=t;beep(880,0.05,0.04)}
+function swapBalls(){
+  // UPGRADE_1: Start swap animation (0.15s duration)
+  if(!swapAnim){
+    swapAnim={progress:0,duration:0.15,fromCur:curBall,fromNext:nextBall};
+    const t=curBall;curBall=nextBall;nextBall=t;
+    if(audioCtx){const tm=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(880,tm);g.gain.setValueAtTime(0.04,tm);g.gain.exponentialRampToValueAtTime(0.001,tm+0.05);o.connect(g);g.connect(audioCtx.destination);o.start(tm);o.stop(tm+0.05)}
+  }
+}
 
 // ============================================================
 //  SHOOTING — Multi-projectile
@@ -351,8 +457,20 @@ function updateSnapBack(dt){
   for(let i=0;i<=activeSnap.rearEnd;i+=2){const mp=getMPos(marbles[i]);spawnSnapTrail(mp.x,mp.y,marbles[i].ci)}
   activeSnap.gapRemain-=close;
   if(activeSnap.gapRemain<=0.5){
-    const tg=marbles[activeSnap.frontStart].dist-MD-MG,off=tg-marbles[activeSnap.rearEnd].dist;
-    for(let i=0;i<=activeSnap.rearEnd;i++)marbles[i].dist+=off;
+    // UPGRADE_3: Hard snap — enforce exact spacing to prevent overlap
+    const frontLastDist=marbles[activeSnap.frontStart].dist;
+    const targetRearDist=frontLastDist-MD-MG;
+    const offset=targetRearDist-marbles[activeSnap.rearEnd].dist;
+    for(let i=0;i<=activeSnap.rearEnd;i++)marbles[i].dist+=offset;
+    
+    // UPGRADE_3: Verify no overlap after snap
+    for(let i=1;i<=activeSnap.rearEnd;i++){
+      const gap=marbles[i].dist-marbles[i-1].dist;
+      if(gap<MD+MG){
+        marbles[i].dist=marbles[i-1].dist+MD+MG;
+      }
+    }
+    
     activeSnap=null;
     // FIXED_BUG_2: After snap completes, immediately scan for cascading matches
     for(let i=0;i<marbles.length;i++){if(scanAndRemove(i))break;}
@@ -398,6 +516,12 @@ function update(dt){
   if(pauseTimer>0)pauseTimer-=dtc;if(reverseTimer>0)reverseTimer-=dtc;if(accuracyTimer>0)accuracyTimer-=dtc;
   if(shakeD>0){shakeD-=dtc;shakeX=(Math.random()-0.5)*shakeI*2;shakeY=(Math.random()-0.5)*shakeI*2;shakeI*=0.88;if(shakeD<=0){shakeX=0;shakeY=0}}
   if(pauseTimer>0&&Math.random()<0.3){const mx=Math.random()*CW,my=Math.random()*CH;spawnIce(mx,my)}
+  
+  // UPGRADE_1: Update swap animation
+  if(swapAnim){
+    swapAnim.progress+=dtc/swapAnim.duration;
+    if(swapAnim.progress>=1)swapAnim=null;
+  }
 
   // FIXED_BUG_2: Animate recoil FIRST, then snap
   if(recoilState)updateRecoil(dtc);
@@ -414,9 +538,28 @@ function update(dt){
   // Animated snap-back
   if(activeSnap&&!recoilState)updateSnapBack(dtc);
 
-  // Clamp & lose check
+  // Clamp & lose check with suction animation
   for(const m of marbles){if(m.dist<MR)m.dist=MR}
-  for(const m of marbles){if(m.dist>=track.totalLen-MR){phase='lose';sfxLose();return}}
+  // UPGRADE_2: Trigger suction animation instead of immediate game over
+  if(!suctionState){
+    for(let i=0;i<marbles.length;i++){
+      if(marbles[i].dist>=track.totalLen-MR){
+        const mp=getMPos(marbles[i]);
+        const endP=track.pts[track.pts.length-1];
+        suctionState={marble:marbles[i],startX:mp.x,startY:mp.y,startDist:marbles[i].dist,progress:0,duration:0.4,endX:endP.x,endY:endP.y};
+        marbles.splice(i,1);
+        break;
+      }
+    }
+  }
+  
+  // UPGRADE_2: Update suction animation
+  if(suctionState){
+    suctionState.progress+=dtc/suctionState.duration;
+    if(suctionState.progress>=1){
+      phase='lose';sfxLose();suctionState=null;
+    }
+  }
 
   // Spawn new marbles
   if(spawning){
@@ -460,8 +603,8 @@ function update(dt){
   for(const ft of floatingTexts){ft.y-=30*dtc;ft.life-=dtc}
   floatingTexts=floatingTexts.filter(ft=>ft.life>0);
 
-  // Skull glow
-  let nearEnd=false;for(const m of marbles){if(m.dist>track.totalLen-80){nearEnd=true;break}}
+  // UPGRADE_2: Skull glow — crisis mode triggers at 120px
+  let nearEnd=false;for(const m of marbles){if(m.dist>track.totalLen-120){nearEnd=true;break}}
   skullGlow+=(nearEnd?1:-1)*dtc*3;skullGlow=Math.max(0,Math.min(1,skullGlow));
 
   // FIXED_BUG_3: Level clear — spawning must be complete AND all marbles cleared
@@ -498,40 +641,126 @@ function drawTrack(){
   }}
 }
 function drawSkull(x,y){
+  // UPGRADE_2: Dynamic skull with crisis mode
   const s=16,glow=skullGlow;
+  const crisisMode=glow>0.5; // Crisis when first marble < 120px from end
+  
+  // Outer glow (more intense in crisis)
   const og=ctx.createRadialGradient(x,y,s*0.5,x,y,s*2.5);
   og.addColorStop(0,`rgba(255,${Math.floor(180-glow*150)},${Math.floor(50-glow*40)},${0.4+glow*0.5})`);
   og.addColorStop(1,'rgba(255,50,0,0)');ctx.fillStyle=og;ctx.beginPath();ctx.arc(x,y,s*2.5,0,Math.PI*2);ctx.fill();
+  
+  // Skull head
   const hg=ctx.createRadialGradient(x-3,y-5,s*0.2,x,y,s);
   hg.addColorStop(0,'#FFEEAA');hg.addColorStop(0.5,'#DDB830');hg.addColorStop(1,'#886600');
   ctx.fillStyle=hg;ctx.beginPath();ctx.arc(x,y-2,s,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#664400';ctx.lineWidth=2;ctx.stroke();
-  ctx.fillStyle='#CCAA30';ctx.beginPath();ctx.arc(x,y+3,s*0.65,0,Math.PI);ctx.fill();ctx.strokeStyle='#664400';ctx.lineWidth=1.5;ctx.stroke();
+  
+  // Jaw (opens wider in crisis mode)
+  const jawOpen=crisisMode?8:3;
+  ctx.fillStyle='#CCAA30';ctx.beginPath();ctx.arc(x,y+jawOpen,s*0.65,0,Math.PI);ctx.fill();ctx.strokeStyle='#664400';ctx.lineWidth=1.5;ctx.stroke();
+  
+  // Eye sockets
   ctx.fillStyle='#1a0a2e';ctx.beginPath();ctx.arc(x-5,y-5,s*0.3,0,Math.PI*2);ctx.arc(x+5,y-5,s*0.3,0,Math.PI*2);ctx.fill();
-  if(glow>0.1){ctx.fillStyle=`rgba(255,${Math.floor(30*(1-glow))},0,${glow})`;ctx.beginPath();ctx.arc(x-5,y-5,s*0.22,0,Math.PI*2);ctx.arc(x+5,y-5,s*0.22,0,Math.PI*2);ctx.fill()}
+  
+  // UPGRADE_2: Eye glow (high-frequency flash in crisis)
+  if(glow>0.1){
+    const flashSpeed=crisisMode?50:200;
+    const flashIntensity=crisisMode?0.8+0.2*Math.sin(Date.now()/flashSpeed):glow;
+    ctx.fillStyle=`rgba(255,${Math.floor(30*(1-flashIntensity))},0,${flashIntensity})`;
+    ctx.beginPath();ctx.arc(x-5,y-5,s*0.22,0,Math.PI*2);ctx.arc(x+5,y-5,s*0.22,0,Math.PI*2);ctx.fill();
+  }
+  
+  // Nose
   ctx.fillStyle='#332200';ctx.beginPath();ctx.moveTo(x,y-1);ctx.lineTo(x-3,y+4);ctx.lineTo(x+3,y+4);ctx.closePath();ctx.fill();
+  
+  // Crossbones
   ctx.strokeStyle='#DDB830';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x-12,y+18);ctx.lineTo(x+12,y+8);ctx.stroke();ctx.beginPath();ctx.moveTo(x-12,y+8);ctx.lineTo(x+12,y+18);ctx.stroke();
   ctx.strokeStyle='#886600';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-12,y+18);ctx.lineTo(x+12,y+8);ctx.stroke();ctx.beginPath();ctx.moveTo(x-12,y+8);ctx.lineTo(x+12,y+18);ctx.stroke();
 }
-function drawMarble(x,y,ci,pwr,alpha=1){
+// UPGRADE_1: Enhanced drawMarble with optional custom radius (at end for compat)
+function drawMarble(x,y,ci,pwr,alpha=1,radius=MR){
   const c=COLORS[ci];ctx.save();ctx.globalAlpha=alpha;
-  if(pwr){let gc;switch(pwr){case PWRS.PAUSE:gc='rgba(100,200,255,0.55)';break;case PWRS.REVERSE:gc='rgba(100,255,150,0.55)';break;case PWRS.ACCURACY:gc='rgba(255,100,100,0.55)';break;case PWRS.BOMB:gc='rgba(255,150,40,0.55)';break;default:gc=null}if(gc){const pulse=0.65+0.35*Math.sin(Date.now()/180);ctx.shadowColor=gc.replace('0.55',String(pulse*0.7));ctx.shadowBlur=14;ctx.fillStyle=gc.replace('0.55',String(pulse*0.45));ctx.beginPath();ctx.arc(x,y,MR+7,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0}}
-  if(pauseTimer>0){ctx.fillStyle='rgba(120,180,255,0.22)';ctx.beginPath();ctx.arc(x,y,MR+3,0,Math.PI*2);ctx.fill()}
-  const grd=ctx.createRadialGradient(x-MR*0.3,y-MR*0.35,MR*0.05,x,y,MR);grd.addColorStop(0,'#FFFFFF');grd.addColorStop(0.2,c.hi);grd.addColorStop(0.55,c.hex);grd.addColorStop(1,c.lo);
-  ctx.fillStyle=grd;ctx.beginPath();ctx.arc(x,y,MR,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.35)';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.beginPath();ctx.arc(x-MR*0.28,y-MR*0.32,MR*0.32,0,Math.PI*2);ctx.fill();
-  if(pwr){ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';let icon='';switch(pwr){case PWRS.PAUSE:icon='⏸';break;case PWRS.REVERSE:icon='⏪';break;case PWRS.ACCURACY:icon='🎯';break;case PWRS.BOMB:icon='💣';break}ctx.fillText(icon,x,y)}
+  if(pwr){let gc;switch(pwr){case PWRS.PAUSE:gc='rgba(100,200,255,0.55)';break;case PWRS.REVERSE:gc='rgba(100,255,150,0.55)';break;case PWRS.ACCURACY:gc='rgba(255,100,100,0.55)';break;case PWRS.BOMB:gc='rgba(255,150,40,0.55)';break;default:gc=null}if(gc){const pulse=0.65+0.35*Math.sin(Date.now()/180);ctx.shadowColor=gc.replace('0.55',String(pulse*0.7));ctx.shadowBlur=14;ctx.fillStyle=gc.replace('0.55',String(pulse*0.45));ctx.beginPath();ctx.arc(x,y,radius+7,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0}}
+  if(pauseTimer>0){ctx.fillStyle='rgba(120,180,255,0.22)';ctx.beginPath();ctx.arc(x,y,radius+3,0,Math.PI*2);ctx.fill()}
+  const grd=ctx.createRadialGradient(x-radius*0.3,y-radius*0.35,radius*0.05,x,y,radius);grd.addColorStop(0,'#FFFFFF');grd.addColorStop(0.2,c.hi);grd.addColorStop(0.55,c.hex);grd.addColorStop(1,c.lo);
+  ctx.fillStyle=grd;ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.35)';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.beginPath();ctx.arc(x-radius*0.28,y-radius*0.32,radius*0.32,0,Math.PI*2);ctx.fill();
+  if(pwr){ctx.fillStyle='#fff';ctx.font=`bold ${Math.floor(radius*0.7)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';let icon='';switch(pwr){case PWRS.PAUSE:icon='⏸';break;case PWRS.REVERSE:icon='⏪';break;case PWRS.ACCURACY:icon='🎯';break;case PWRS.BOMB:icon='💣';break}ctx.fillText(icon,x,y)}
   ctx.restore();
 }
 function drawLauncher(){
+  // UPGRADE_1: Two-ball depth effect with swap animation
+  const frontDist=36,backDist=24;
+  const frontR=MR,backR=11;
+  let curBallDist,cNextBallDist,curBallR,nextBallR;
+  
+  if(swapAnim){
+    // During swap animation: lerp positions
+    const t=Math.min(1,swapAnim.progress);
+    const easeT=t*t*(3-2*t); // Smoothstep
+    curBallDist=frontDist+(backDist-frontDist)*easeT;
+    cNextBallDist=backDist+(frontDist-backDist)*easeT;
+    curBallR=frontR+(backR-frontR)*easeT;
+    nextBallR=backR+(frontR-backR)*easeT;
+  }else{
+    // Default: cur ball at front (muzzle), next ball at back
+    curBallDist=frontDist;
+    cNextBallDist=backDist;
+    curBallR=frontR;
+    nextBallR=backR;
+  }
+  
+  // Frog body
   ctx.fillStyle='rgba(0,0,0,0.4)';ctx.beginPath();ctx.ellipse(LX,LY+4,30,26,0,0,Math.PI*2);ctx.fill();
   const bg=ctx.createRadialGradient(LX-5,LY-8,8,LX,LY,30);bg.addColorStop(0,'#5B9A3B');bg.addColorStop(0.5,'#3B7A1B');bg.addColorStop(1,'#1B4A00');
   ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(LX,LY,28,24,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#8BC34A';ctx.lineWidth=2.5;ctx.stroke();
-  for(let s=-1;s<=1;s+=2){const ex=LX+s*14,ey=LY-16;ctx.fillStyle='#FFF';ctx.beginPath();ctx.arc(ex,ey-4,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#1B4A00';ctx.lineWidth=1.5;ctx.stroke();const px=Math.cos(launcherAngle)*2.5,py=Math.sin(launcherAngle)*2.5;ctx.fillStyle='#111';ctx.beginPath();ctx.arc(ex+px,ey-4+py,5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#FFF';ctx.beginPath();ctx.arc(ex+px-1,ey-4+py-1.5,1.8,0,Math.PI*2);ctx.fill()}
-  const bx=LX+Math.cos(launcherAngle)*20,by=LY+Math.sin(launcherAngle)*20;ctx.strokeStyle='#2B5A00';ctx.lineWidth=12;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(LX,LY);ctx.lineTo(bx,by);ctx.stroke();ctx.strokeStyle='#4B8A1B';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(LX,LY);ctx.lineTo(bx,by);ctx.stroke();
-  drawMarble(LX+Math.cos(launcherAngle)*36,LY+Math.sin(launcherAngle)*36,curBall,null);
-  drawMarble(LX-Math.cos(launcherAngle)*24,LY-Math.sin(launcherAngle)*24,nextBall,null,0.55);
+  
+  // Frog eyes
+  for(let s=-1;s<=1;s+=2){
+    const ex=LX+s*14,ey=LY-16;
+    ctx.fillStyle='#FFF';ctx.beginPath();ctx.arc(ex,ey-4,10,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#1B4A00';ctx.lineWidth=1.5;ctx.stroke();
+    const px=Math.cos(launcherAngle)*2.5,py=Math.sin(launcherAngle)*2.5;
+    ctx.fillStyle='#111';ctx.beginPath();ctx.arc(ex+px,ey-4+py,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#FFF';ctx.beginPath();ctx.arc(ex+px-1,ey-4+py-1.5,1.8,0,Math.PI*2);ctx.fill();
+  }
+  
+  // Barrel
+  const bx=LX+Math.cos(launcherAngle)*20,by=LY+Math.sin(launcherAngle)*20;
+  ctx.strokeStyle='#2B5A00';ctx.lineWidth=12;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(LX,LY);ctx.lineTo(bx,by);ctx.stroke();
+  ctx.strokeStyle='#4B8A1B';ctx.lineWidth=7;
+  ctx.beginPath();ctx.moveTo(LX,LY);ctx.lineTo(bx,by);ctx.stroke();
+  
+  // UPGRADE_1: Draw next ball (behind, smaller, semi-transparent)
+  const nextX=LX-Math.cos(launcherAngle)*cNextBallDist;
+  const nextY=LY-Math.sin(launcherAngle)*cNextBallDist;
+  ctx.save();
+  ctx.globalAlpha=0.6;
+  drawMarble(nextX,nextY,nextBall,null,1,nextBallR);
+  ctx.restore();
+  
+  // UPGRADE_1: Draw current ball (in front, with glow)
+  const curX=LX+Math.cos(launcherAngle)*curBallDist;
+  const curY=LY+Math.sin(launcherAngle)*curBallDist;
+  ctx.save();
+  ctx.shadowColor=COLORS[curBall].hex;
+  ctx.shadowBlur=12;
+  drawMarble(curX,curY,curBall,null,1,curBallR);
+  ctx.restore();
+  
+  // Belly highlight
   ctx.fillStyle='rgba(180,230,150,0.25)';ctx.beginPath();ctx.ellipse(LX-2,LY+6,12,8,0,0,Math.PI*2);ctx.fill();
-  if(accuracyTimer>0){const pulse=0.5+0.5*Math.sin(Date.now()/130),lx=LX+Math.cos(launcherAngle)*42,ly=LY+Math.sin(launcherAngle)*42;ctx.strokeStyle=`rgba(255,${Math.floor(60+100*pulse)},50,${0.35+0.3*pulse})`;ctx.lineWidth=2.5+pulse;ctx.setLineDash([10,6]);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(LX+Math.cos(launcherAngle)*600,LY+Math.sin(launcherAngle)*600);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=`rgba(255,100,50,${0.5+0.4*pulse})`;ctx.beginPath();ctx.arc(lx,ly,5,0,Math.PI*2);ctx.fill()}
+  
+  // Accuracy laser
+  if(accuracyTimer>0){
+    const pulse=0.5+0.5*Math.sin(Date.now()/130);
+    const lx=LX+Math.cos(launcherAngle)*42,ly=LY+Math.sin(launcherAngle)*42;
+    ctx.strokeStyle=`rgba(255,${Math.floor(60+100*pulse)},50,${0.35+0.3*pulse})`;
+    ctx.lineWidth=2.5+pulse;ctx.setLineDash([10,6]);
+    ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(LX+Math.cos(launcherAngle)*600,LY+Math.sin(launcherAngle)*600);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=`rgba(255,100,50,${0.5+0.4*pulse})`;ctx.beginPath();ctx.arc(lx,ly,5,0,Math.PI*2);ctx.fill();
+  }
 }
 function drawFlyingBalls(){
   for(const fb of flyingBalls){
@@ -559,6 +788,21 @@ function render(){
   ctx.save();if(shakeD>0)ctx.translate(shakeX,shakeY);
   drawTrack();
   for(const m of marbles){const mp=getMPos(m);drawMarble(mp.x,mp.y,m.ci,m.pwr,isInTunnel(m.dist)?0.3:1)}
+  // UPGRADE_2: Draw suction animation
+  if(suctionState){
+    const t=suctionState.progress;
+    const easeT=t*t*(3-2*t); // Smoothstep easing
+    // Spiral toward skull
+    const angle=t*Math.PI*4; // 2 full rotations
+    const spiralRadius=20*(1-easeT);
+    const x=suctionState.endX+Math.cos(angle)*spiralRadius*(1-easeT);
+    const y=suctionState.endY+Math.sin(angle)*spiralRadius*(1-easeT);
+    const scale=1-easeT;
+    ctx.save();
+    ctx.globalAlpha=1-easeT;
+    drawMarble(x,y,suctionState.marble.ci,suctionState.marble.pwr,1-easeT,MR*scale);
+    ctx.restore();
+  }
   drawLauncher();drawFlyingBalls();drawParticles();drawFloatTexts();ctx.restore();drawOverlays();
   if(phase==='playing'||phase==='levelClear')drawProgressBar();
   if(phase==='title')drawTitle();else if(phase==='win')drawWin();else if(phase==='lose')drawLose();else if(phase==='levelClear')drawLevelClear();
