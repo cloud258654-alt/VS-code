@@ -223,7 +223,7 @@
     /* 脈衝擴散環 — 從圓環中心擴散 */
     .data-rings {
       position: absolute;
-      right: 20%; top: 40%;
+      right: 20%; top: 25%;
       transform: translateY(-50%);
       width: 520px; height: 520px;
       z-index: 1; pointer-events: none;
@@ -406,7 +406,7 @@
        ========================================== */
     .ring-wrapper {
       position: absolute;
-      right: 20%; top: 40%;
+      right: 20%; top: 25%;
       transform: translateY(-50%);
       width: 520px; height: 520px;
       z-index: 2;
@@ -451,6 +451,22 @@
         inset 0 0 240px var(--neon-purple);
       filter: blur(2px);
       animation: spinRing 8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    }
+
+    /* 色散效果 — 模擬鏡頭色差 */
+    .neon-ring::before {
+      content: '';
+      position: absolute; inset: -6px; border-radius: 50%;
+      border: 14px solid transparent;
+      border-top-color: rgba(255,60,60,0.15);
+      border-left-color: rgba(60,60,255,0.12);
+      border-bottom-color: rgba(255,60,60,0.1);
+      box-shadow:
+        0 0 20px rgba(255,60,60,0.1),
+        0 0 50px rgba(60,60,255,0.08);
+      filter: blur(4px);
+      animation: spinRing 8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+      pointer-events: none;
     }
 
     /* 內層細環 */
@@ -637,8 +653,8 @@
     .menu a.active::before {
       content: '';
       position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
-      width: 4px; height: 4px; background: var(--neon-cyan);
-      border-radius: 50%; box-shadow: 0 0 10px var(--neon-cyan);
+      width: 4px; height: 4px; background: var(--neon-warm);
+      border-radius: 50%; box-shadow: 0 0 10px var(--neon-warm);
     }
 
     .nav-right { display: flex; align-items: center; gap: 20px; }
@@ -725,6 +741,22 @@
       content: '';
       flex: 1; height: 1px;
       background: linear-gradient(90deg, rgba(255,255,255,0.15), transparent);
+    }
+
+    /* 終端機閃爍游標 */
+    .term-cursor {
+      display: inline-block;
+      width: 10px; height: 14px;
+      background: var(--neon-cyan);
+      box-shadow: 0 0 6px var(--neon-cyan);
+      margin-left: 6px;
+      vertical-align: middle;
+      animation: cursorBlink 1s step-end infinite;
+    }
+
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
 
     .main-title {
@@ -920,6 +952,11 @@
       box-shadow: 0 0 6px var(--neon-cyan);
       will-change: transform;
     }
+    .bar:nth-child(4),
+    .bar:nth-child(6) {
+      background: linear-gradient(to top, var(--neon-warm), rgba(255,200,180,0.9));
+      box-shadow: 0 0 6px var(--neon-warm);
+    }
 
     /* 不規則波形 — 各條獨立 timing */
     .bar:nth-child(1) { height: 35%; animation: waveBar1 0.8s cubic-bezier(0.4,0,0.2,1) infinite alternate; }
@@ -1040,19 +1077,53 @@
        12. 裝飾角標
        ========================================== */
     .corner-decor {
-      position: absolute; width: 18px; height: 18px;
-      border: 1px solid transparent; z-index: 8;
+      position: absolute; z-index: 8;
+    }
+    /* 外層框 */
+    .corner-decor::before {
+      content: ''; display: block;
+      width: 24px; height: 24px;
+      border: 1px solid transparent;
     }
     .top-right {
-      top: 26%; right: 6.5%;
-      border-top-color: rgba(255,255,255,0.2);
-      border-right-color: rgba(255,255,255,0.2);
+      top: 25%; right: 6%;
+    }
+    .top-right::before {
+      border-top-color: rgba(255,255,255,0.25);
+      border-right-color: rgba(255,255,255,0.25);
     }
     .bottom-right {
-      bottom: 12%; right: 6.5%;
-      border-bottom-color: rgba(255,255,255,0.2);
-      border-right-color: rgba(255,255,255,0.2);
+      bottom: 11%; right: 6%;
     }
+    .bottom-right::before {
+      border-bottom-color: rgba(255,255,255,0.25);
+      border-right-color: rgba(255,255,255,0.25);
+    }
+    /* 內層框 */
+    .corner-decor::after {
+      content: ''; display: block;
+      width: 14px; height: 14px;
+      border: 1px solid transparent;
+      margin: 5px 0 0 5px;
+    }
+    .top-right::after {
+      border-top-color: rgba(255,255,255,0.12);
+      border-right-color: rgba(255,255,255,0.12);
+    }
+    .bottom-right::after {
+      border-bottom-color: rgba(255,255,255,0.12);
+      border-right-color: rgba(255,255,255,0.12);
+    }
+
+    /* 角落經緯度標記 */
+    .coord {
+      position: absolute; z-index: 8;
+      font-family: var(--font-tech);
+      font-size: 8px; letter-spacing: 1px;
+      color: var(--text-dim); opacity: 0.5;
+    }
+    .coord-tr { top: 23%; right: 5.5%; }
+    .coord-br { bottom: 9%; right: 5.5%; }
 
     /* ==========================================
        13. AI 終端機 Modal
@@ -1382,6 +1453,8 @@
   <!-- 裝飾角標 -->
   <div class="corner-decor top-right" aria-hidden="true"></div>
   <div class="corner-decor bottom-right" aria-hidden="true"></div>
+  <div class="coord coord-tr" aria-hidden="true">LAT 22.3N</div>
+  <div class="coord coord-br" aria-hidden="true">LON 114.1E</div>
 
   <!-- 導覽 -->
   <header class="navbar">
@@ -1422,7 +1495,7 @@
   <!-- 中央內容 -->
   <main class="main-content">
     <p class="category-tag">HARRY CHAN / DIGITAL CREATIVE PORTFOLIO</p>
-    <p class="hero-sub-eng">SIGNAL INTERFACE v2.4</p>
+    <p class="hero-sub-eng">SIGNAL INTERFACE v2.4<span class="term-cursor"></span></p>
     <h1 class="main-title">
       Signal Core <span class="highlight">Online</span>
       <span class="ch-title">訊號核心已上線</span>
@@ -1434,7 +1507,7 @@
     </p>
     <div class="action-group">
       <a href="#" class="cta-btn">ENTER PORTFOLIO <span class="btn-arrow">→</span></a>
-      <a href="#" class="cta-btn secondary" id="btn-ai-open">✦ LAUNCH AI CORE</a>
+      <a href="#" class="cta-btn secondary" id="btn-ai-open">[>] LAUNCH AI CORE</a>
     </div>
   </main>
 

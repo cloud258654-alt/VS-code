@@ -246,7 +246,31 @@
     }
   }
   // ==========================================
-  // 5. HUD 時鐘
+  // 5. 波形即時隨機化
+  // ==========================================
+  var bars = document.querySelectorAll('.waveform .bar');
+  if (bars.length) {
+    bars.forEach(function (b) {
+      b.style.animation = 'none';
+      b.style.transition = 'transform 0.3s ease';
+      b.style.transformOrigin = 'bottom';
+    });
+
+    function randomizeWaveform() {
+      bars.forEach(function (b, i) {
+        var baseH = [0.35, 0.75, 0.45, 0.95, 0.55, 0.85, 0.25, 0.65, 0.5][i];
+        var jitter = (Math.random() - 0.5) * 0.35;
+        var h = Math.max(0.1, Math.min(1, baseH + jitter));
+        b.style.transform = 'scaleY(' + h + ')';
+      });
+    }
+
+    randomizeWaveform();
+    setInterval(randomizeWaveform, 350);
+  }
+
+  // ==========================================
+  // 6. HUD 時鐘
   // ==========================================
   var hudClock = document.getElementById('hud-clock');
   if (hudClock) {
