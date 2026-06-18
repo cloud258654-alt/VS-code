@@ -22,7 +22,10 @@ The Phase 3 interactive playground is deployed on Streamlit Community Cloud — 
 
 **https://svm-kernel-trick-3d-demo.streamlit.app**
 
-Or run it locally in under 60 seconds:
+> **Deployment note**: Streamlit Cloud can't install `manim` (requires ffmpeg/LaTeX system libs).
+> When deploying, set **Requirements file** to `requirements-streamlit.txt` in the app settings.
+>
+> Or run it locally in under 60 seconds:
 
 ```bash
 pip install -r requirements.txt
