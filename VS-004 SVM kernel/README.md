@@ -22,10 +22,7 @@ The Phase 3 interactive playground is deployed on Streamlit Community Cloud — 
 
 **https://svm-kernel-trick-3d-demo.streamlit.app**
 
-> **Deployment note**: Streamlit Cloud can't install `manim` (requires ffmpeg/LaTeX system libs).
-> When deploying, set **Requirements file** to `requirements-streamlit.txt` in the app settings.
->
-> Or run it locally in under 60 seconds:
+Run it locally in under 60 seconds:
 
 ```bash
 pip install -r requirements.txt
@@ -40,7 +37,7 @@ streamlit run phase3_streamlit_app.py
 ```bash
 git clone <your-repo-url>
 cd svm-kernel-trick-3d-demo
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
 ### Dependencies
@@ -129,7 +126,8 @@ Understanding this distinction is the core insight this project aims to teach.
 
 ```
 .
-├── requirements.txt
+├── requirements.txt           # Streamlit Cloud / Phase 2 & 3
+├── requirements-dev.txt       # Full local install (includes Manim)
 ├── README.md
 ├── utils/
 │   ├── __init__.py
