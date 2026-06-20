@@ -141,6 +141,167 @@ Apple Canvas Edition · PWA 智慧冰箱管理系統
      └─ qty=0 → 移至已完食                → 5s Toast [復原]
 ```
 
+### 📐 Canvas 渲染管線 (Rendering Pipeline)
+
+```
+  CanvasUI.render(foods)
+        │
+        ▼
+  ┌──────────────────┐
+  │ computeLayout()   │
+  │                   │
+  │ getCategorizedLists│ ← engine.js
+  │   ├─ expired       │
+  │   ├─ danger → URGENT
+  │   ├─ warning       │
+  │   ├─ safe          │
+  │   └─ completed     │
+  │                   │
+  │ cardLayouts[] =   │
+  │  { x, y, w, h,    │
+  │    btnA, btnB }   │
+  └────────┬──────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ animationLoop()   │  ← 60fps requestAnimationFrame
+  │                   │
+  │  ┌──────────────┐ │
+  │  │ Spring Update │ │  force = -k·x - d·v
+  │  │ animCards[]   │ │  k=0.012  d=0.26
+  │  └──────────────┘ │
+  │  ┌──────────────┐ │
+  │  │ Progress Ease│ │  current += (target-current)*0.15
+  │  │ progressAnims │ │
+  │  └──────────────┘ │
+  │  ┌──────────────┐ │
+  │  │ draw()        │ │
+  │  │ ├─ Banner     │ │
+  │  │ ├─ Headers    │ │
+  │  │ ├─ Cards      │ │  ← shadowBlur + roundRect
+  │  │ ├─ Badges     │ │  ← semi-transparent border
+  │  │ ├─ Buttons    │ │  ← hitTest detection
+  │  │ ├─ Progress   │ │
+  │  │ └─ SpringCards│ │
+  │  └──────────────┘ │
+  └──────────────────┘
+           │
+           ▼
+  Canvas 2x Retina 輸出
+  (canvas.width = cssWidth × devicePixelRatio)
+```
+
+### 📦 多單位系統 (Unit System Matrix)
+
+```
+┌────────┬──────────┬──────────────┬──────────────┬──────────────┐
+│ Unit   │  顯示     │  按鈕 A      │  預設扣除量   │  卡片顯示     │
+├────────┼──────────┼──────────────┼──────────────┼──────────────┤
+│   x    │  🍏 個數  │  吃 1 個     │     1        │  蛋 x10      │
+│   ml   │  🥛 液體  │  用一點 → 彈窗│  自訂(預50)  │ 750/1000 ml  │
+│   g    │  🥩 重量  │  用一點 → 彈窗│  自訂(預100) │ 200/500 g    │
+│   %    │  🥫 醬料  │  用 10%      │     10       │  70/100 %    │
+└────────┴──────────┴──────────────┴──────────────┴──────────────┘
+
+  進度條 (ProgressBar)：僅 ml / g 顯示，easing 平滑漸變
+  完食判定：quantity ≤ 0 → finished=true → spring 動畫淡出
+```
+
+### 🔔 通知 & 復原流程 (Notification & Undo)
+
+```
+  ┌─────────────────────────────────────────────────┐
+  │              initNotifier()                       │
+  │                    │                              │
+  │    ┌───────────────┴───────────────┐              │
+  │    ▼                               ▼              │
+  │  Notification.requestPermission()   setInterval() │
+  │    │                               │ 30min        │
+  │    ▼                               ▼              │
+  │  granted?  ──YES──→  checkAndNotify()             │
+  │    │                   │                          │
+  │    NO                  ├─ expired? → "已過期"     │
+  │    │                   ├─ ≤2 days? → "快過期"     │
+  │    ▼                   └─ notify("冰箱警報 🚨")   │
+  │  略過                                             │
+  └─────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────┐
+  │              Undo System                         │
+  │                                                  │
+  │  點擊「全吃完」                                    │
+  │       │                                          │
+  │       ▼                                          │
+  │  saveUndoSnapshot(food)  ← 深拷貝 food 物件       │
+  │       │                                          │
+  │       ▼                                          │
+  │  clearFood(id)                                    │
+  │       │                                          │
+  │       ▼                                          │
+  │  showUndoToast("鮮奶 已完食")                      │
+  │  ┌──────────────────────────────────┐            │
+  │  │  鮮奶 已完食          [ 復原 ]   │  5 秒倒數   │
+  │  └──────────────────────────────────┘            │
+  │       │                        │                 │
+  │      逾時                     點擊復原            │
+  │       │                        │                 │
+  │       ▼                        ▼                 │
+  │  UNDO_SNAPSHOT = null    performUndo()            │
+  │                          restore food             │
+  │                          CanvasUI.render()        │
+  └─────────────────────────────────────────────────┘
+```
+
+### 📈 歷史分析儀表板 (History Analytics)
+
+```
+  ┌───────────────────────────────────────────┐
+  │           History Timeline                 │
+  │                                           │
+  │  6/20  🛒 購買 鮮奶       1000ml          │
+  │  6/22  🥛 喝了 250ml      剩餘 750ml      │
+  │  6/24  🥛 喝了 250ml      剩餘 500ml      │
+  │  6/26  ✔ 完食            移至已完食       │
+  │                                           │
+  │  ── getHistoryStats() ──                  │
+  │                                           │
+  │  購入 120 項                               │
+  │  消耗 110 項                               │
+  │  浪費  10 項                               │
+  │  ┌─────────────────────┐                  │
+  │  │ 節約率 ██████████▏ 91%│                  │
+  │  └─────────────────────┘                  │
+  │                                           │
+  │  Top 消耗           Top 浪費               │
+  │  🥛 鮮奶  45 次     🍌 香蕉  3 次          │
+  │  🥚 雞蛋  30 次     🍞 吐司  2 次          │
+  │  🍎 蘋果  20 次     🥬 菠菜  2 次          │
+  └───────────────────────────────────────────┘
+```
+
+### 🧩 模組相依關係 (Dependency Graph)
+
+```
+  main.js ──────────────────────────────────────
+    │        │        │        │        │
+    ▼        ▼        ▼        ▼        ▼
+  canvas  storage  engine   state   notifier
+  -ui.js    │        │        │
+    │       ▼        ▼        │
+    │    model.js  constants  │
+    │       │        │        │
+    ▼       └───┬────┘        │
+  animation    │              │
+    │          ▼              │
+    │      history.js ←──────┘
+    │          │
+    ▼          ▼
+  undo.js   metric.js
+
+  箭頭方向 = 呼叫依賴
+  所有模組透過 <script> 全域變數溝通
+```
+
 ---
 
 ## 功能特色
