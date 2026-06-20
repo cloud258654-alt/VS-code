@@ -410,9 +410,12 @@ CanvasUI.hitBtn = function (x, y, btn) {
 };
 
 CanvasUI.doConsume = function (layout, amount) {
+  var snap = JSON.parse(JSON.stringify(layout.food));
   var item = consumeFood(layout.food.id, amount);
   if (!item) return;
   triggerHeartParticles(CanvasUI.canvas);
+
+  recordHistory("CONSUME", snap, { amount: amount || (item.unitType === "%" ? 10 : 1) });
 
   if (item.finished) {
     CanvasUI.removeCard(layout);
@@ -423,8 +426,11 @@ CanvasUI.doConsume = function (layout, amount) {
 };
 
 CanvasUI.doClear = function (layout) {
+  saveUndoSnapshot(layout.food);
   clearFood(layout.food.id);
+  recordHistory("CLEAR", layout.food, null);
   triggerHeartParticles(CanvasUI.canvas);
+  showUndoToast(layout.food.name);
   CanvasUI.removeCard(layout);
 };
 

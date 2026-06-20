@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   CanvasUI.render(getFoods());
   initModal();
   initLocationManager();
+  initNotifier();
   registerSW();
 });
 
@@ -68,6 +69,7 @@ function initModal() {
     );
     food.expireDate = formData.get("expireDate");
     addFood(food);
+    recordHistory("ADD", food, null);
     closeModal();
     CanvasUI.render(getFoods());
   });

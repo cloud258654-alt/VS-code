@@ -1,0 +1,1000 @@
+# 🎀 Fridge-Guard Kawaii Pro
+
+## Apple Canvas Edition
+
+### OpenCode Master Specification (V1 → V9)
+
+---
+
+# Project Vision
+
+Fridge-Guard Kawaii Pro 是一個以 PWA 為核心、具備離線能力、Apple Canvas 美學、AI 食譜助手與未來家庭共享能力的智慧冰箱管理系統。
+
+設計理念：
+
+```
+買進
+ ↓
+提醒
+ ↓
+消耗
+ ↓
+完食
+ ↓
+成就感
+ ↓
+減少浪費
+```
+
+目標：
+
+* 零食物浪費
+* 極簡操作
+* Apple 等級流暢動畫
+* 可長期擴充
+* 支援 AI 與家庭共享
+
+---
+
+# Recommended Project Structure
+
+```
+fridge-guard-kawaii/
+
+index.html
+styles.css
+manifest.json
+sw.js
+
+assets/
+│
+├── icons/
+├── images/
+├── sounds/
+
+js/
+
+main.js
+storage.js
+engine.js
+ui.js
+animation.js
+notifier.js
+
+model.js
+constants.js
+utils.js
+
+state.js
+events.js
+history.js
+metric.js
+
+pages/
+
+dashboard.js
+settings.js
+
+plugins/
+
+ai-plugin.js
+statistics-plugin.js
+theme-plugin.js
+cloud-plugin.js
+
+tests/
+
+add-food.spec.js
+delete-food.spec.js
+offline.spec.js
+
+data/
+
+categories.json
+locations.json
+```
+
+---
+
+# Core Architecture
+
+```
+User
+
+↓
+
+main.js
+
+↓
+
+--------------------------------
+
+storage.js
+LocalStorage
+
+engine.js
+Expiration Engine
+
+ui.js
+Canvas Renderer
+
+animation.js
+Spring Physics
+
+notifier.js
+Notification Engine
+
+state.js
+State Machine
+
+events.js
+Event Bus
+
+history.js
+Timeline Engine
+
+metric.js
+Analytics Engine
+
+--------------------------------
+
+Service Worker
+
+--------------------------------
+
+PWA
+
+--------------------------------
+
+Android / iPhone
+```
+
+---
+
+# Food Data Model
+
+```javascript
+{
+  id:"uuid",
+
+  name:"高鮮鮮奶",
+
+  category:"dairy",
+
+  addedDate:"2026-06-20",
+
+  expireDate:"2026-06-27",
+
+  originalQuantity:1000,
+
+  quantity:750,
+
+  unitType:"ml",
+
+  location:"🥛 冷藏",
+
+  containerId:"main-fridge",
+
+  state:"SAFE",
+
+  finished:false
+}
+```
+
+---
+
+# Supported Units
+
+```javascript
+x
+ml
+g
+%
+```
+
+Examples:
+
+```
+雞蛋 ×10
+
+牛奶 1000ml
+
+糖 500g
+
+草莓果醬 100%
+```
+
+---
+
+# Dynamic Locations
+
+Default
+
+```
+🥛 冷藏
+
+❄ 冷凍
+
+🏠 常溫
+```
+
+Custom
+
+```
+🍫 零食櫃
+
+🌶 調味架
+
+🍞 麵包櫃
+
+🧃 飲料櫃
+```
+
+Stored in
+
+```javascript
+locations.json
+```
+
+---
+
+# State Machine
+
+state.js
+
+```
+NEW
+
+↓
+
+SAFE
+
+↓
+
+WARNING
+
+↓
+
+URGENT
+
+↓
+
+EXPIRED
+
+↓
+
+CONSUMING
+
+↓
+
+COMPLETED
+
+↓
+
+ARCHIVED
+```
+
+Each state has:
+
+* color
+* badge
+* animation
+* sorting priority
+
+---
+
+# Event Bus
+
+events.js
+
+```
+EAT_ONE
+
+↓
+
+emit()
+
+↓
+
+FOOD_CONSUMED
+
+↓
+
+UI update
+
+Animation update
+
+History update
+
+Analytics update
+
+Notification update
+```
+
+Avoid module coupling.
+
+---
+
+# Expiration Engine
+
+engine.js
+
+Calculate:
+
+```javascript
+remainingDays =
+expireDate - today
+```
+
+Status
+
+```
+>5 days
+
+SAFE
+Mint Green
+
+3~5 days
+
+WARNING
+Amber
+
+<=2 days
+
+URGENT
+Apple Red
+
+<0
+
+EXPIRED
+```
+
+Sort priority:
+
+```
+EXPIRED
+
+↓
+
+URGENT
+
+↓
+
+WARNING
+
+↓
+
+SAFE
+
+↓
+
+COMPLETED
+```
+
+---
+
+# Task06 Quantity Consumption
+
+Old
+
+```
+Eat all immediately
+```
+
+New
+
+```
+10
+
+↓
+
+9
+
+↓
+
+8
+
+↓
+
+7
+```
+
+Consume item one-by-one.
+
+---
+
+# Task07 HP Mode
+
+For:
+
+* Jam
+* Sauce
+* Butter
+
+```
+100%
+
+↓
+
+90%
+
+↓
+
+80%
+
+↓
+
+0%
+```
+
+HP bar style.
+
+---
+
+# Task08 Dual Consumption Engine
+
+Button 1
+
+```
+Eat one
+
+or
+
+Use 100ml
+```
+
+Button 2
+
+```
+Finish all
+```
+
+Large quantity items don't require repetitive clicking.
+
+---
+
+# Task09 Custom Locations
+
+Move from fixed location to user-defined locations.
+
+Stored separately:
+
+```javascript
+locations.json
+```
+
+Support:
+
+```
+零食櫃
+
+乾糧櫃
+
+調味架
+
+飲料櫃
+```
+
+---
+
+# Task10 Multi Unit System
+
+Support:
+
+```
+x
+
+ml
+
+g
+
+%
+```
+
+Custom consume amount:
+
+```
+250ml
+
+100g
+
+10%
+```
+
+Future analytics foundation.
+
+---
+
+# History Timeline Engine
+
+history.js
+
+Example:
+
+```
+6/20
+
+Purchase Milk
+
+↓
+
+6/22
+
+Drink 250ml
+
+↓
+
+6/24
+
+Drink 250ml
+
+↓
+
+6/26
+
+Finish
+```
+
+Git commit style timeline.
+
+---
+
+# Analytics Engine
+
+metric.js
+
+Dashboard
+
+```
+Purchased
+
+120
+
+Consumed
+
+110
+
+Wasted
+
+10
+
+Saving Rate
+
+91%
+```
+
+Top Food
+
+```
+Milk
+
+Egg
+
+Apple
+```
+
+Top Waste
+
+```
+Banana
+
+Bread
+
+Spinach
+```
+
+---
+
+# Undo System
+
+Prevent accidental deletion.
+
+```
+Finish all
+
+↓
+
+Toast
+
+Completed
+
+Undo
+```
+
+Undo available for 5 seconds.
+
+---
+
+# Canvas Rendering Engine
+
+Task12
+
+Old:
+
+```
+DOM
+```
+
+New:
+
+```
+Canvas 2X Retina
+
+↓
+
+Spring Physics
+
+↓
+
+Glassmorphism
+
+↓
+
+Ripple Effect
+
+↓
+
+Star Particle
+
+↓
+
+Smooth Motion
+```
+
+Apple style animation.
+
+---
+
+# Success Route
+
+```
+Consume
+
+↓
+
+quantity<=0
+
+↓
+
+finished=true
+
+↓
+
+Water Ripple
+
+↓
+
+Star Shine
+
+↓
+
+Slide Down
+
+↓
+
+Completed
+```
+
+Move into Completed section.
+
+---
+
+# AI Assistant
+
+ai-plugin.js
+
+## Recipe
+
+Input
+
+```
+Egg
+
+Milk
+
+Cheese
+```
+
+Output
+
+```
+Omelette
+
+Sandwich
+
+Pancake
+```
+
+---
+
+## Waste Prediction
+
+Predict
+
+```
+Banana will expire in 3 days.
+```
+
+---
+
+## Shopping List
+
+Predict:
+
+```
+Milk almost empty.
+```
+
+---
+
+## Nutrition Analysis
+
+Calculate
+
+* Protein
+* Fat
+* Sugar
+* Calories
+
+---
+
+# Design System
+
+design/
+
+## Tokens
+
+```
+Color
+
+Typography
+
+Radius
+
+Spacing
+
+Shadow
+
+Animation
+```
+
+## Components
+
+```
+Card
+
+Button
+
+Badge
+
+Toast
+
+Modal
+
+EmptyState
+```
+
+Follow Apple HIG.
+
+---
+
+# Plugin System
+
+plugins/
+
+```
+AI Plugin
+
+Statistics Plugin
+
+Cloud Plugin
+
+Theme Plugin
+
+Recipe Plugin
+```
+
+Core remains lightweight.
+
+---
+
+# Widget System
+
+Home Screen Widget
+
+```
+Today
+
+Milk
+
+1 day
+
+Spinach
+
+Today expires
+```
+
+---
+
+# Multi Container Architecture
+
+Support multiple containers
+
+```
+Home
+
+├── Main Fridge
+
+├── Freezer
+
+├── Office
+
+├── Camping Box
+```
+
+Data
+
+```javascript
+containerId
+```
+
+---
+
+# Future Roadmap
+
+```
+V1
+MVP
+
+↓
+
+V2
+Utility
+
+↓
+
+V3
+AI Assistant
+
+↓
+
+V4
+Cloud Sync
+
+↓
+
+V5
+Family Share
+
+↓
+
+V6
+Gamification
+
+↓
+
+V7
+Nutrition Analytics
+
+↓
+
+V8
+Smart Kitchen
+
+↓
+
+V9
+IoT Kitchen OS
+```
+
+Integrations
+
+* Home Assistant
+* NFC
+* Barcode Scanner
+* Smart Scale
+* Apple Watch
+* Voice Assistant
+* Smart Refrigerator
+
+---
+
+# Development Priority
+
+## Phase 1
+
+V1 MVP
+
+Must Have
+
+* CRUD
+* LocalStorage
+* PWA
+* Offline
+* Three-color alert
+* Dual buttons
+
+---
+
+## Phase 2
+
+Utility
+
+* Dashboard
+* History
+* Undo
+* Settings
+* Search
+* Custom location
+
+---
+
+## Phase 3
+
+Apple Canvas Edition
+
+* Canvas Renderer
+* Spring Physics
+* Glassmorphism
+* Particle Effects
+
+---
+
+## Phase 4
+
+AI Assistant
+
+* Recipe
+* Shopping
+* Prediction
+* Nutrition
+
+---
+
+## Phase 5
+
+Cloud Ecosystem
+
+* Firebase
+* Family Share
+* Widgets
+* Apple Watch
+* IoT
+
+---
+
+# Mission
+
+Turn refrigerator management into an elegant Apple-like experience.
+
+```
+PWA
+
++
+
+Offline
+
++
+
+Canvas Engine
+
++
+
+Spring Physics
+
++
+
+AI Assistant
+
++
+
+Family Sharing
+
++
+
+Health Analytics
+
+=
+
+Fridge-Guard Kawaii Pro
+```
