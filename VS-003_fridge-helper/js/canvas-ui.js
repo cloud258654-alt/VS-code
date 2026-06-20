@@ -63,6 +63,7 @@ CanvasUI.resize = function () {
   CanvasUI.canvas.style.width = w + "px";
   CanvasUI.canvas.width = w * CanvasUI.dpr;
   CanvasUI.ctx.setTransform(CanvasUI.dpr, 0, 0, CanvasUI.dpr, 0, 0);
+  if (CanvasUI.foods.length) CanvasUI.computeLayout();
   CanvasUI.needRedraw = true;
 };
 
