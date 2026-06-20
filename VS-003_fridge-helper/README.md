@@ -14,63 +14,174 @@ Apple Canvas Edition · PWA 智慧冰箱管理系統
 
 ---
 
+## 資訊圖表
+
+### 🧠 系統架構流程圖
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                       User (手機 / 桌面)                   │
+└──────────────┬──────────────────────────────────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│         index.html            │
+│  ┌─────────────────────────┐ │
+│  │    Canvas (canvas-ui.js) │ │  ← Apple Canvas 2x Retina
+│  │  ┌─────┐ ┌─────┐ ┌────┐ │ │     Spring Physics 動畫
+│  │  │🚨救命│ │🐱快吃│ │🎀安│ │ │     粒子特效 ❤️✨💠
+│  │  │  呀  │ │  我  │ │ 全 │ │ │
+│  │  └─────┘ └─────┘ └────┘ │ │
+│  │  ┌─────────────────────┐ │ │
+│  │  │     ✔ 已完食         │ │ │
+│  │  └─────────────────────┘ │ │
+│  └─────────────────────────┘ │
+└──────────────┬───────────────┘
+               │
+    ┌──────────┼──────────┐
+    ▼          ▼          ▼
+┌────────┐ ┌────────┐ ┌────────┐
+│ main.js│ │engine.js│ │state.js│
+│ 總指揮  │ │ 到期計算│ │ 狀態機  │
+└───┬────┘ └───┬────┘ └───┬────┘
+    │          │          │
+    ▼          ▼          ▼
+┌──────────────────────────────────┐
+│          storage.js               │
+│  ┌───────────┐ ┌───────────────┐ │
+│  │LocalStorage│ │ 位置管理       │ │
+│  │(foods)     │ │(locations)    │ │
+│  └───────────┘ └───────────────┘ │
+└──────────────────────────────────┘
+    │          │          │
+    ▼          ▼          ▼
+┌────────┐ ┌────────┐ ┌──────────┐
+│history │ │metric  │ │notifier  │
+│ 時間軸  │ │ 分析   │ │ 推播通知  │
+└────────┘ └────────┘ └──────────┘
+    │
+    ▼
+┌────────┐
+│undo.js │  ← 5 秒復原
+└────────┘
+
+         ┌──────────────┐
+         │   sw.js      │  ← PWA 離線快取
+         │Service Worker│
+         └──────────────┘
+```
+
+### 🔄 食物生命週期狀態機
+
+```
+  🛒 新增食材
+      │
+      ▼
+  ┌─────────┐
+  │  SAFE   │  > 5 天   🟢 #34C759  薄荷綠
+  │  安全   │
+  └────┬────┘
+       │ 天數減少
+       ▼
+  ┌─────────┐
+  │ WARNING │  3~5 天   🟠 #FF9500  琥珀橘
+  │ 快吃我  │
+  └────┬────┘
+       │ 天數減少
+       ▼
+  ┌─────────┐
+  │ URGENT  │  0~2 天   🔴 #FF3B30  警示紅
+  │ 快過期  │
+  └────┬────┘
+       │ 天數 < 0
+       ▼
+  ┌─────────┐
+  │ EXPIRED │  < 0 天   🔴 #FF3B30  警示紅
+  │ 已過期  │
+  └────┬────┘
+       │ 點擊「吃 1 個」或「全吃完」
+       ▼
+  ┌───────────┐
+  │ CONSUMING │  逐步扣除
+  │  消耗中   │
+  └─────┬─────┘
+        │ quantity ≤ 0
+        ▼
+  ┌───────────┐
+  │ COMPLETED │  finished=true   ⚫ #86868B
+  │  已完食   │  ← 5 秒內可復原
+  └───────────┘
+```
+
+### 📊 消耗引擎
+
+```
+  食材卡片
+  ┌──────────────────────────────────┐
+  │ 🥛 鮮奶                           │
+  │ 750 / 1000 ml                    │
+  │ ████████████░░░░ 75%             │
+  │                                  │
+  │       ┌─────────┐ ┌───────────┐  │
+  │       │ 用一點  │ │  全吃完   │  │
+  │       └────┬────┘ └─────┬─────┘  │
+  └────────────┼────────────┼────────┘
+               │            │
+     ┌─────────┘            └─────────┐
+     ▼                                ▼
+  彈出用量輸入                    saveUndoSnapshot()
+  ┌──────────┐                   recordHistory()
+  │ 50  ml ✓│                   triggerHeartParticles()
+  └──────────┘                   showUndoToast()
+     │                                │
+     ▼                                ▼
+  consumeFood(id,50)             clearFood(id)
+     │                                │
+     ├─ qty>0 → 更新進度條             └─ 卡片彈簧動畫淡出
+     └─ qty=0 → 移至已完食                → 5s Toast [復原]
+```
+
+---
+
 ## 功能特色
 
-- **Canvas 渲染引擎** — Retina 2x 高解析度繪製，彈簧物理動畫
-- **多單位系統** — 支援 個數(x) / 毫升(ml) / 公克(g) / 百分比(%)
-- **雙按鈕消耗** — 逐次扣除 + 一鍵完食，自訂 ml/g 扣除量
-- **自訂存放位置** — 動態增刪，預設冷藏/冷凍庫/常溫/乾糧櫃/調味架
-- **狀態機分類** — SAFE → WARNING → URGENT → EXPIRED → COMPLETED
-- **歷史時間軸** — 每次增減記錄，Git-commit 風格
-- **5 秒復原** — 誤點全吃完可即時復原
-- **到期推播** — 過期/快過期瀏覽器通知
-- **粒子特效** — ❤️✨💠 愛心 + 星芒 + 晶瑩氣泡
-- **PWA 離線** — Service Worker 快取，可安裝到手機主畫面
+| 模組 | 功能 | 技術 |
+|------|------|------|
+| `canvas-ui.js` | Canvas 渲染引擎 | Retina 2x, Spring Physics, roundRect |
+| `model.js` | 多單位系統 | x / ml / g / %, originalQuantity |
+| `storage.js` | 雙按鈕消耗 + 自訂位置 | consumeFood / clearFood, getLocations |
+| `state.js` | Apple 三色狀態機 | SAFE→WARNING→URGENT→EXPIRED→COMPLETED |
+| `history.js` | Git-commit 時間軸 | 500 筆上限, 按 foodId 查詢 |
+| `animation.js` | 粒子特效 | ❤️ + ✨ + 💠 隨機噴發 |
+| `undo.js` | 5 秒復原 Toast | 快照還原, 黑底藍字 UI |
+| `notifier.js` | 到期推播 | Notification API, 30min 週期 |
+| `metric.js` | 分析儀表板 | savingRate, wasteItems, topFoods |
+| `sw.js` | PWA 離線 | Cache-First Strategy, 版本自動清理 |
 
 ---
 
 ## Live Demo
-
-### 本機啟動
 
 ```bash
 cd fridge-helper
 python -m http.server 3000
 ```
 
-開啟瀏覽器：
-
 ```
-http://localhost:3000          # 本機
-http://192.168.x.x:3000        # 手機（同區網）
-```
-
-### PWA 安裝
-
-1. 用手機瀏覽器開啟 `http://<你的IP>:3000`
-2. iOS Safari → 分享 → 加入主畫面
-3. Android Chrome → 選單 → 安裝應用程式
-
----
-
-## 架構
-
-```
-js/
-├── constants.js      # 類別預設天數 (meat:3, dairy:7...)
-├── model.js          # createFoodItem 工廠函數
-├── storage.js        # LocalStorage CRUD + 位置管理
-├── engine.js         # 剩餘天數計算 + 分類
-├── state.js          # 狀態機 (SAFE→WARNING→URGENT→EXPIRED→COMPLETED)
-├── history.js        # 時間軸記錄引擎
-├── metric.js         # 分析儀表板
-├── animation.js      # 粒子特效 (❤️✨💠)
-├── ui.js             # 輔助渲染函數
-├── canvas-ui.js      # Canvas 渲染引擎 + 彈簧物理
-├── undo.js           # 5 秒復原系統
-├── notifier.js       # 到期推播
-├── main.js           # 總指揮官
-sw.js                 # Service Worker
+┌──────────────────────────────────────────┐
+│                                          │
+│     http://localhost:3000                 │
+│                                          │
+│     本機開啟瀏覽器即可使用                  │
+│                                          │
+│     ── 手機連線 ──                        │
+│                                          │
+│     1. 手機與電腦連接同一 WiFi             │
+│     2. 開啟 http://192.168.x.x:3000       │
+│     3. iOS: 分享 → 加入主畫面              │
+│     4. Android: 選單 → 安裝應用程式        │
+│                                          │
+└──────────────────────────────────────────┘
 ```
 
 ---
@@ -79,16 +190,16 @@ sw.js                 # Service Worker
 
 ```js
 {
-  id: "uuid",
-  name: "高鮮鮮奶",
-  category: "dairy",
-  addedDate: "2026-06-20",
-  expireDate: "2026-06-27",
-  quantity: 750,
+  id:           "uuid",
+  name:         "高鮮鮮奶",
+  category:     "dairy",
+  addedDate:    "2026-06-20",
+  expireDate:   "2026-06-27",
+  quantity:     750,
   originalQuantity: 1000,
-  unitType: "ml",
-  location: "🥛 冷藏",
-  finished: false
+  unitType:     "ml",
+  location:     "🥛 冷藏",
+  finished:     false
 }
 ```
 
@@ -98,10 +209,40 @@ sw.js                 # Service Worker
 
 1. 點右下角 **＋** 新增食材
 2. 選擇類別、單位、存放位置
-3. Canvas 卡片自動分類為：
-   - 🚨 救命呀（已過期/快過期）
+3. Canvas 卡片自動分類：
+   - 🚨 救命呀（已過期 / 快過期）
    - 🐱 快吃我（3-5 天）
-   - 🎀 安全唷（>5 天）
+   - 🎀 安全唷（> 5 天）
    - ✔ 已完食
-4. 點 **吃 1 個 / 用一點 / 用 10%** 逐次消耗
-5. 點 **全吃完** 直接歸零（5 秒內可復原）
+4. 點「吃 1 個 / 用一點 / 用 10%」逐次消耗
+5. 點「全吃完」直接歸零（5 秒內可復原）
+
+---
+
+## 專案結構
+
+```
+VS-003_fridge-helper/
+├── index.html          # 主頁面 (Canvas + Modal)
+├── styles.css          # 樣式 (Apple 灰底 #F5F5F7)
+├── manifest.json       # PWA 設定
+├── sw.js               # Service Worker
+├── README.md           # 本文件
+│
+├── js/
+│   ├── constants.js    # CATEGORY_DEFAULT_DAYS
+│   ├── model.js        # createFoodItem(name,cat,loc,qty,unit)
+│   ├── storage.js      # getFoods/saveFoods/consumeFood/clearFood
+│   ├── engine.js       # calculateRemainingDays/getCategorizedLists
+│   ├── state.js        # FoodState.compute/color/sortOrder/label
+│   ├── history.js      # recordHistory/getHistory/getFoodHistory
+│   ├── metric.js       # getMetrics (savingRate, wasteItems)
+│   ├── animation.js    # playJellyAnimation/triggerHeartParticles
+│   ├── undo.js         # saveUndoSnapshot/showUndoToast/performUndo
+│   ├── notifier.js     # initNotifier/checkAndNotify
+│   ├── ui.js           # populateLocationSelect/CATEGORY_LABELS
+│   ├── canvas-ui.js    # CanvasUI: init/render/draw/hitTest/spring
+│   └── main.js         # DOMContentLoaded 總指揮官
+│
+└── Task_*.md           # 開發任務文件 (01-13)
+```
