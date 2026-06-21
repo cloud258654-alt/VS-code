@@ -52,6 +52,16 @@ function clearFood(id) {
   return item;
 }
 
+function restoreFood(id) {
+  var foods = getFoods();
+  var item = foods.find(function (f) { return f.id === id; });
+  if (!item) return null;
+  item.finished = false;
+  item.quantity = item.originalQuantity || item.quantity || 1;
+  saveFoods(foods);
+  return item;
+}
+
 var LOCATIONS_KEY = "fridge-locations";
 var DEFAULT_LOCATIONS = ["🥛 冷藏", "❄ 冷凍庫", "🏠 常溫", "🪵 乾糧櫃", "🌶 調味架"];
 

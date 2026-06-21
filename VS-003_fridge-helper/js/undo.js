@@ -80,6 +80,11 @@ function performUndo() {
     saveFoods(foods);
   }
   CanvasUI.render(getFoods());
+
+  var list = getShoppingList();
+  var shopItem = list.find(function (s) { return s.name === snap.name && s.source === "auto" && !s.completed; });
+  if (shopItem) removeFromShoppingList(shopItem.id);
+  updateShoppingBadge();
 }
 
 function hasUndoSnapshot() { return UNDO_SNAPSHOT !== null; }
