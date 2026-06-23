@@ -37,6 +37,13 @@
       <button class="nav-item" data-view="operations" type="button">Operations</button>
       <button class="nav-item" data-view="supplierPortal" type="button">Supplier Portal</button>
       <button class="nav-item" data-view="copilot" type="button">Copilot</button>
+      <button class="nav-item" data-view="compliance" type="button">Compliance</button>
+      <button class="nav-item" data-view="pcf" type="button">PCF Designer</button>
+      <button class="nav-item" data-view="carbonPrice" type="button">Carbon Price</button>
+      <button class="nav-item" data-view="risk" type="button">Climate Risk</button>
+      <button class="nav-item" data-view="utilities" type="button">Utilities</button>
+      <button class="nav-item" data-view="assets" type="button">Assets</button>
+      <button class="nav-item" data-view="benchmark" type="button">Benchmark</button>
       <button class="nav-item" data-view="agent" type="button">AI Agent</button>
       <button class="nav-item" data-view="rag" type="button">RAG Knowledge</button>
       <button class="nav-item" data-view="line" type="button">LINE Assistant</button>
@@ -302,6 +309,103 @@
             <span class="status normal" data-i18n="copilotBadge">常見問題</span>
           </div>
           <div class="prompt-grid" id="copilotPromptGrid"></div>
+        </div>
+      </section>
+
+      <section class="view" id="compliance">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="complianceTitle">法規任務中心</h2>
+              <span class="status warning" data-i18n="complianceBadge">3 項進行中</span>
+            </div>
+            <div class="compliance-list" id="complianceList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="inboxTitle">任務收件匣</h2>
+              <span class="status critical" data-i18n="inboxBadge">5 件待處理</span>
+            </div>
+            <div class="inbox-list" id="inboxList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="pcf">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="pcfTitle">產品碳足跡 PCF Designer</h2>
+              <span class="status normal" data-i18n="pcfBadge">BOM 階層</span>
+            </div>
+            <div class="pcf-list" id="pcfList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="factorTitle">排放係數版本管理</h2>
+              <span class="status warning" data-i18n="factorBadge">1 筆即將過期</span>
+            </div>
+            <div class="factor-list" id="factorList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="carbonPrice">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="carbonPriceTitle">內部碳價與碳預算</h2>
+            <span class="status normal" data-i18n="carbonPriceBadge">NTD 1,500 / tonCO2e</span>
+          </div>
+          <div class="carbon-price-list" id="carbonPriceList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="risk">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="climateRiskTitle">氣候風險洞察</h2>
+            <span class="status warning" data-i18n="climateRiskBadge">實體 / 轉型風險</span>
+          </div>
+          <div class="risk-list" id="climateRiskList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="utilities">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="utilityTitle">公用事業帳單分析</h2>
+            <span class="status warning" data-i18n="utilityBadge">費用異常</span>
+          </div>
+          <div class="utility-list" id="utilityList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="assets">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="assetTitle">資產生命週期管理</h2>
+            <span class="status normal" data-i18n="assetBadge">設備汰換 ROI</span>
+          </div>
+          <div class="asset-list" id="assetList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="benchmark">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="uncertaintyTitle">不確定性與信賴區間</h2>
+              <span class="status warning" data-i18n="uncertaintyBadge">估算風險</span>
+            </div>
+            <div class="uncertainty-list" id="uncertaintyList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="benchmarkTitle">同業 Benchmark</h2>
+              <span class="status normal" data-i18n="benchmarkBadge">Peer Comparison</span>
+            </div>
+            <div class="benchmark-list" id="benchmarkList"></div>
+          </section>
         </div>
       </section>
 

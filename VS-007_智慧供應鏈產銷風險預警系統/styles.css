@@ -282,7 +282,15 @@ canvas {
 .assurance-row,
 .org-row,
 .ops-card,
-.supplier-portal-row {
+.supplier-portal-row,
+.pcf-row,
+.factor-row,
+.carbon-price-row,
+.risk-row,
+.utility-row,
+.asset-row,
+.uncertainty-row,
+.benchmark-row {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #fbfcfb;
@@ -308,7 +316,15 @@ canvas {
 .assurance-row,
 .org-row,
 .ops-card,
-.supplier-portal-row {
+.supplier-portal-row,
+.pcf-row,
+.factor-row,
+.carbon-price-row,
+.risk-row,
+.utility-row,
+.asset-row,
+.uncertainty-row,
+.benchmark-row {
   padding: 12px;
 }
 
@@ -358,7 +374,17 @@ canvas {
 .org-tree,
 .ops-table,
 .supplier-portal-list,
-.prompt-grid {
+.prompt-grid,
+.compliance-list,
+.inbox-list,
+.pcf-list,
+.factor-list,
+.carbon-price-list,
+.risk-list,
+.utility-list,
+.asset-list,
+.uncertainty-list,
+.benchmark-list {
   display: grid;
   gap: 10px;
 }
@@ -546,6 +572,37 @@ canvas {
   grid-template-columns: minmax(180px, 1fr) 140px 110px;
 }
 
+.pcf-row,
+.factor-row,
+.risk-row,
+.asset-row,
+.uncertainty-row,
+.benchmark-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 150px 120px;
+  gap: 12px;
+  align-items: center;
+}
+
+.carbon-price-row,
+.utility-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 190px 190px 110px;
+  gap: 12px;
+  align-items: center;
+}
+
+.utility-row {
+  grid-template-columns: minmax(220px, 1fr) 130px 180px;
+}
+
+.risk-row,
+.asset-row,
+.uncertainty-row,
+.benchmark-row {
+  grid-template-columns: minmax(220px, 1fr) 130px;
+}
+
 #ragSearch,
 #chatInput {
   min-height: 40px;
@@ -672,7 +729,15 @@ pre {
   .assurance-row,
   .supplier-portal-row,
   .ops-card,
-  #waterWasteList .ops-card {
+  #waterWasteList .ops-card,
+  .pcf-row,
+  .factor-row,
+  .carbon-price-row,
+  .risk-row,
+  .utility-row,
+  .asset-row,
+  .uncertainty-row,
+  .benchmark-row {
     grid-template-columns: 1fr;
   }
 

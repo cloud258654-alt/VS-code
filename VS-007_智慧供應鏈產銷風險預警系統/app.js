@@ -71,6 +71,61 @@ const optimizationData = {
     { name: "Precision Metals", due: "2026/07/05", completion: 62, status: "reviewing" },
     { name: "EverPack", due: "2026/07/12", completion: 100, status: "ready" },
     { name: "Formosa Logistics", due: "2026/07/01", completion: 30, status: "pending" }
+  ],
+  compliance: [
+    { key: "CSRD", due: "2026Q4", progress: 62, status: "warning" },
+    { key: "CBAM", due: "2026Q3", progress: 38, status: "critical" },
+    { key: "SBTi", due: "2027Q1", progress: 54, status: "warning" },
+    { key: "CDP", due: "2026Q4", progress: 78, status: "normal" }
+  ],
+  inbox: [
+    { key: "supplierEvidence", owner: "Procurement", due: "2026/07/01", status: "critical" },
+    { key: "factorReview", owner: "ESG Office", due: "2026/07/05", status: "warning" },
+    { key: "carbonBudget", owner: "Finance", due: "2026/07/08", status: "warning" },
+    { key: "assetRoi", owner: "Facility", due: "2026/07/12", status: "normal" }
+  ],
+  pcf: [
+    { key: "mainboard", carbon: 0.42, alternative: "lowCarbonLaminate", delta: "-12%" },
+    { key: "battery", carbon: 0.31, alternative: "recycledAluminum", delta: "-8%" },
+    { key: "packaging", carbon: 0.09, alternative: "fiberPackaging", delta: "-18%" },
+    { key: "assembly", carbon: 0.63, alternative: "renewablePower", delta: "-15%" }
+  ],
+  factors: [
+    { key: "taiwanGrid2026", source: "MOENV", version: "v1.2", expires: "2026/12/31", status: "normal" },
+    { key: "naturalGas2025", source: "GHG Protocol", version: "v3.1", expires: "2026/08/31", status: "warning" },
+    { key: "diesel2024", source: "IPCC", version: "v2.9", expires: "2026/06/30", status: "critical" }
+  ],
+  carbonBudgets: [
+    { key: "manufacturing", budget: 1450, actual: 1510 },
+    { key: "facility", budget: 980, actual: 910 },
+    { key: "procurement", budget: 620, actual: 710 },
+    { key: "logistics", budget: 280, actual: 246 }
+  ],
+  climateRisks: [
+    { key: "flood", type: "physical", impact: "high", exposure: "Factory A" },
+    { key: "waterStress", type: "physical", impact: "medium", exposure: "Factory B" },
+    { key: "carbonTax", type: "transition", impact: "high", exposure: "Notebook" },
+    { key: "customerDisclosure", type: "transition", impact: "medium", exposure: "Scope 3 suppliers" }
+  ],
+  utilities: [
+    { key: "electricityBill", amount: 4280000, anomaly: "+14%", saving: 320000 },
+    { key: "demandCharge", amount: 860000, anomaly: "+22%", saving: 180000 },
+    { key: "gasBill", amount: 730000, anomaly: "+9%", saving: 64000 }
+  ],
+  assets: [
+    { key: "compressorA", age: 9, efficiency: 62, roi: "2.8y", status: "critical" },
+    { key: "smtOven", age: 6, efficiency: 74, roi: "3.4y", status: "warning" },
+    { key: "solarInverter", age: 3, efficiency: 91, roi: "healthy", status: "normal" }
+  ],
+  uncertainty: [
+    { key: "notebookPcf", value: "1.45 ± 0.12 kgCO2e", confidence: "medium" },
+    { key: "scope3Materials", value: "650 ± 86 tonCO2e", confidence: "low" },
+    { key: "scope2Electricity", value: "1,740 ± 24 tonCO2e", confidence: "high" }
+  ],
+  benchmarks: [
+    { key: "notebookIntensity", current: "1.45", peer: "1.22", rank: "P75" },
+    { key: "renewableRatio", current: "20%", peer: "34%", rank: "Below median" },
+    { key: "wasteRecycle", current: "64%", peer: "72%", rank: "P60" }
   ]
 };
 
@@ -125,6 +180,26 @@ const dictionaries = {
     supplierPortalBadge: "3 件逾期",
     copilotTitle: "自然語言資料查詢",
     copilotBadge: "常見問題",
+    complianceTitle: "法規任務中心",
+    complianceBadge: "3 項進行中",
+    inboxTitle: "任務收件匣",
+    inboxBadge: "5 件待處理",
+    pcfTitle: "產品碳足跡 PCF Designer",
+    pcfBadge: "BOM 階層",
+    factorTitle: "排放係數版本管理",
+    factorBadge: "1 筆即將過期",
+    carbonPriceTitle: "內部碳價與碳預算",
+    carbonPriceBadge: "NTD 1,500 / tonCO2e",
+    climateRiskTitle: "氣候風險洞察",
+    climateRiskBadge: "實體 / 轉型風險",
+    utilityTitle: "公用事業帳單分析",
+    utilityBadge: "費用異常",
+    assetTitle: "資產生命週期管理",
+    assetBadge: "設備汰換 ROI",
+    uncertaintyTitle: "不確定性與信賴區間",
+    uncertaintyBadge: "估算風險",
+    benchmarkTitle: "同業 Benchmark",
+    benchmarkBadge: "Peer Comparison",
     totalCarbon: "總碳排",
     totalCarbonHint: "較目標 +8%，需要處理",
     scope1Hint: "天然氣、柴油、LPG",
@@ -299,7 +374,88 @@ const dictionaries = {
         "哪些佐證文件還沒準備好？",
         "如果綠電提高到 50%，年度碳排會降多少？",
         "哪些供應商需要優先催繳？"
-      ]
+      ],
+      complianceLabels: {
+        CSRD: "CSRD 永續揭露",
+        CBAM: "CBAM 碳邊境調整",
+        SBTi: "SBTi 目標設定",
+        CDP: "CDP 問卷揭露",
+        supplierEvidence: "供應商佐證催繳",
+        factorReview: "排放係數年度審查",
+        carbonBudget: "部門碳預算確認",
+        assetRoi: "設備汰換 ROI 評估"
+      },
+      pcfLabels: {
+        mainboard: "主機板",
+        battery: "電池模組",
+        packaging: "包裝材料",
+        assembly: "組裝製程",
+        lowCarbonLaminate: "低碳基板",
+        recycledAluminum: "再生鋁材",
+        fiberPackaging: "纖維包材",
+        renewablePower: "綠電製程",
+        alternative: "替代方案",
+        change: "變化"
+      },
+      factorLabels: {
+        taiwanGrid2026: "台灣電力係數 2026",
+        naturalGas2025: "天然氣係數 2025",
+        diesel2024: "柴油係數 2024",
+        version: "版本",
+        expires: "到期日"
+      },
+      carbonPriceLabels: {
+        manufacturing: "製造部",
+        facility: "廠務部",
+        procurement: "採購部",
+        logistics: "物流部",
+        budget: "碳預算",
+        actual: "實際排放",
+        fee: "超標碳費"
+      },
+      climateRiskLabels: {
+        flood: "淹水風險",
+        waterStress: "缺水風險",
+        carbonTax: "碳費上升",
+        customerDisclosure: "客戶揭露要求",
+        physical: "實體風險",
+        transition: "轉型風險",
+        high: "高",
+        medium: "中"
+      },
+      utilityLabels: {
+        electricityBill: "電費帳單",
+        demandCharge: "契約容量 / 需量費",
+        gasBill: "天然氣帳單",
+        amount: "金額",
+        anomaly: "異常",
+        saving: "節費潛力"
+      },
+      assetLabels: {
+        compressorA: "A 空壓機",
+        smtOven: "SMT 烤箱",
+        solarInverter: "太陽能逆變器",
+        age: "年齡",
+        efficiency: "效率",
+        roi: "回收期",
+        healthy: "健康"
+      },
+      uncertaintyLabels: {
+        notebookPcf: "Notebook 產品碳足跡",
+        scope3Materials: "Scope 3 原料排放",
+        scope2Electricity: "Scope 2 用電排放",
+        high: "高可信",
+        medium: "估算",
+        low: "低可信"
+      },
+      benchmarkLabels: {
+        notebookIntensity: "Notebook 碳強度",
+        renewableRatio: "綠電比例",
+        wasteRecycle: "廢棄物回收率",
+        current: "目前",
+        peer: "同業",
+        rank: "排名"
+      }
     },
     agentSteps: [
       ["Step 1 讀取資料", "ERP / MES / EMS：Notebook、50,000 pcs、250,000 kWh、天然氣 5000 m3"],
@@ -412,6 +568,26 @@ const dictionaries = {
     supplierPortalBadge: "3 overdue",
     copilotTitle: "Natural Language Data Query",
     copilotBadge: "Prompt library",
+    complianceTitle: "Compliance Task Center",
+    complianceBadge: "3 in progress",
+    inboxTitle: "Task Inbox",
+    inboxBadge: "5 pending",
+    pcfTitle: "Product Carbon Footprint Designer",
+    pcfBadge: "BOM hierarchy",
+    factorTitle: "Emission Factor Version Control",
+    factorBadge: "1 expiring soon",
+    carbonPriceTitle: "Internal Carbon Price and Budget",
+    carbonPriceBadge: "NTD 1,500 / tonCO2e",
+    climateRiskTitle: "Climate Risk Insights",
+    climateRiskBadge: "Physical / transition risks",
+    utilityTitle: "Utility Bill Analytics",
+    utilityBadge: "Cost anomalies",
+    assetTitle: "Asset Lifecycle Management",
+    assetBadge: "Replacement ROI",
+    uncertaintyTitle: "Uncertainty and Confidence Interval",
+    uncertaintyBadge: "Estimation risk",
+    benchmarkTitle: "Peer Benchmark",
+    benchmarkBadge: "Peer Comparison",
     totalCarbon: "Total Carbon",
     totalCarbonHint: "+8% above target, action required",
     scope1Hint: "Natural gas, diesel, LPG",
@@ -586,7 +762,88 @@ const dictionaries = {
         "Which evidence files are not ready?",
         "If renewable power rises to 50%, how much annual carbon falls?",
         "Which suppliers should be reminded first?"
-      ]
+      ],
+      complianceLabels: {
+        CSRD: "CSRD sustainability disclosure",
+        CBAM: "CBAM carbon border adjustment",
+        SBTi: "SBTi target setting",
+        CDP: "CDP questionnaire disclosure",
+        supplierEvidence: "Supplier evidence follow-up",
+        factorReview: "Annual emission factor review",
+        carbonBudget: "Department carbon budget confirmation",
+        assetRoi: "Asset replacement ROI assessment"
+      },
+      pcfLabels: {
+        mainboard: "Mainboard",
+        battery: "Battery module",
+        packaging: "Packaging material",
+        assembly: "Assembly process",
+        lowCarbonLaminate: "Low-carbon laminate",
+        recycledAluminum: "Recycled aluminum",
+        fiberPackaging: "Fiber packaging",
+        renewablePower: "Renewable-powered process",
+        alternative: "Alternative",
+        change: "Change"
+      },
+      factorLabels: {
+        taiwanGrid2026: "Taiwan grid factor 2026",
+        naturalGas2025: "Natural gas factor 2025",
+        diesel2024: "Diesel factor 2024",
+        version: "Version",
+        expires: "Expires"
+      },
+      carbonPriceLabels: {
+        manufacturing: "Manufacturing",
+        facility: "Facility",
+        procurement: "Procurement",
+        logistics: "Logistics",
+        budget: "Carbon budget",
+        actual: "Actual emissions",
+        fee: "Over-budget fee"
+      },
+      climateRiskLabels: {
+        flood: "Flood risk",
+        waterStress: "Water stress",
+        carbonTax: "Carbon fee increase",
+        customerDisclosure: "Customer disclosure demand",
+        physical: "Physical risk",
+        transition: "Transition risk",
+        high: "High",
+        medium: "Medium"
+      },
+      utilityLabels: {
+        electricityBill: "Electricity bill",
+        demandCharge: "Demand charge",
+        gasBill: "Natural gas bill",
+        amount: "Amount",
+        anomaly: "Anomaly",
+        saving: "Saving potential"
+      },
+      assetLabels: {
+        compressorA: "Compressor A",
+        smtOven: "SMT oven",
+        solarInverter: "Solar inverter",
+        age: "Age",
+        efficiency: "Efficiency",
+        roi: "Payback",
+        healthy: "Healthy"
+      },
+      uncertaintyLabels: {
+        notebookPcf: "Notebook product carbon footprint",
+        scope3Materials: "Scope 3 material emissions",
+        scope2Electricity: "Scope 2 electricity emissions",
+        high: "High confidence",
+        medium: "Estimated",
+        low: "Low confidence"
+      },
+      benchmarkLabels: {
+        notebookIntensity: "Notebook carbon intensity",
+        renewableRatio: "Renewable power ratio",
+        wasteRecycle: "Waste recycling rate",
+        current: "Current",
+        peer: "Peer",
+        rank: "Rank"
+      }
     },
     agentSteps: [
       ["Step 1 Read data", "ERP / MES / EMS: Notebook, 50,000 pcs, 250,000 kWh, natural gas 5000 m3"],
@@ -1014,6 +1271,123 @@ function renderCopilotPrompts() {
   document.querySelector("#copilotPromptGrid").innerHTML = t("optimization").copilotPrompts.map((prompt) => `<button class="prompt-button" type="button">${prompt}</button>`).join("");
 }
 
+function renderCompliance() {
+  const labels = t("optimization").complianceLabels;
+  document.querySelector("#complianceList").innerHTML = optimizationData.compliance.map((item) => `<div class="project-row">
+    <div>
+      <strong>${labels[item.key]}</strong>
+      <p class="muted">${t("due")}: ${item.due}</p>
+      <div class="bar"><span style="width:${item.progress}%"></span></div>
+    </div>
+    <span>${t("progress")}: ${item.progress}%</span>
+    <span class="status ${item.status}">${t("optimization").risks[item.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#inboxList").innerHTML = optimizationData.inbox.map((task) => `<div class="assurance-row">
+    <div>
+      <strong>${labels[task.key]}</strong>
+      <p class="muted">${t("owner")}: ${translateOptimization(task.owner, "projects")} · ${t("due")}: ${task.due}</p>
+    </div>
+    <span class="status ${task.status}">${t("optimization").risks[task.status]}</span>
+  </div>`).join("");
+}
+
+function renderPcfAndFactors() {
+  const pcfLabels = t("optimization").pcfLabels;
+  document.querySelector("#pcfList").innerHTML = optimizationData.pcf.map((item) => `<div class="pcf-row">
+    <div>
+      <strong>${pcfLabels[item.key]}</strong>
+      <p class="muted">${pcfLabels.alternative}: ${pcfLabels[item.alternative]}</p>
+    </div>
+    <span>${item.carbon} kgCO2e</span>
+    <span class="status normal">${pcfLabels.change}: ${item.delta}</span>
+  </div>`).join("");
+
+  const factorLabels = t("optimization").factorLabels;
+  document.querySelector("#factorList").innerHTML = optimizationData.factors.map((factor) => `<div class="factor-row">
+    <div>
+      <strong>${factorLabels[factor.key]}</strong>
+      <p class="muted">${factor.source} · ${factorLabels.version}: ${factor.version}</p>
+    </div>
+    <span>${factorLabels.expires}: ${factor.expires}</span>
+    <span class="status ${factor.status}">${t("optimization").risks[factor.status]}</span>
+  </div>`).join("");
+}
+
+function renderCarbonPricing() {
+  const labels = t("optimization").carbonPriceLabels;
+  const carbonFee = 1500;
+  document.querySelector("#carbonPriceList").innerHTML = optimizationData.carbonBudgets.map((item) => {
+    const over = Math.max(item.actual - item.budget, 0);
+    const fee = over * carbonFee;
+    const status = over > 0 ? "critical" : "normal";
+    return `<div class="carbon-price-row">
+      <div>
+        <strong>${labels[item.key]}</strong>
+        <p class="muted">${labels.budget}: ${item.budget} tonCO2e</p>
+      </div>
+      <span>${labels.actual}: ${item.actual} tonCO2e</span>
+      <span>${labels.fee}: NTD ${formatNumber(fee)}</span>
+      <span class="status ${status}">${over > 0 ? t("overTarget") : t("normal")}</span>
+    </div>`;
+  }).join("");
+}
+
+function renderClimateRisk() {
+  const labels = t("optimization").climateRiskLabels;
+  document.querySelector("#climateRiskList").innerHTML = optimizationData.climateRisks.map((risk) => `<div class="risk-row">
+    <div>
+      <strong>${labels[risk.key]}</strong>
+      <p class="muted">${labels[risk.type]} · ${risk.exposure}</p>
+    </div>
+    <span class="status ${risk.impact === "high" ? "critical" : "warning"}">${labels[risk.impact]}</span>
+  </div>`).join("");
+}
+
+function renderUtilities() {
+  const labels = t("optimization").utilityLabels;
+  document.querySelector("#utilityList").innerHTML = optimizationData.utilities.map((item) => `<div class="utility-row">
+    <div>
+      <strong>${labels[item.key]}</strong>
+      <p class="muted">${labels.amount}: NTD ${formatNumber(item.amount)}</p>
+    </div>
+    <span>${labels.anomaly}: ${item.anomaly}</span>
+    <span>${labels.saving}: NTD ${formatNumber(item.saving)}</span>
+  </div>`).join("");
+}
+
+function renderAssets() {
+  const labels = t("optimization").assetLabels;
+  document.querySelector("#assetList").innerHTML = optimizationData.assets.map((asset) => `<div class="asset-row">
+    <div>
+      <strong>${labels[asset.key]}</strong>
+      <p class="muted">${labels.age}: ${asset.age} · ${labels.efficiency}: ${asset.efficiency}%</p>
+    </div>
+    <span>${labels.roi}: ${labels[asset.roi] || asset.roi}</span>
+    <span class="status ${asset.status}">${t("optimization").risks[asset.status]}</span>
+  </div>`).join("");
+}
+
+function renderBenchmark() {
+  const uncertaintyLabels = t("optimization").uncertaintyLabels;
+  document.querySelector("#uncertaintyList").innerHTML = optimizationData.uncertainty.map((item) => `<div class="uncertainty-row">
+    <div>
+      <strong>${uncertaintyLabels[item.key]}</strong>
+      <p class="muted">${item.value}</p>
+    </div>
+    <span class="status ${item.confidence === "high" ? "normal" : item.confidence === "medium" ? "warning" : "critical"}">${uncertaintyLabels[item.confidence]}</span>
+  </div>`).join("");
+
+  const benchmarkLabels = t("optimization").benchmarkLabels;
+  document.querySelector("#benchmarkList").innerHTML = optimizationData.benchmarks.map((item) => `<div class="benchmark-row">
+    <div>
+      <strong>${benchmarkLabels[item.key]}</strong>
+      <p class="muted">${benchmarkLabels.current}: ${item.current} · ${benchmarkLabels.peer}: ${item.peer}</p>
+    </div>
+    <span>${benchmarkLabels.rank}: ${item.rank}</span>
+  </div>`).join("");
+}
+
 function addMessage(text, role = "assistant") {
   const log = document.querySelector("#chatLog");
   const message = document.createElement("div");
@@ -1061,6 +1435,13 @@ function renderAll() {
   renderOperations();
   renderSupplierPortal();
   renderCopilotPrompts();
+  renderCompliance();
+  renderPcfAndFactors();
+  renderCarbonPricing();
+  renderClimateRisk();
+  renderUtilities();
+  renderAssets();
+  renderBenchmark();
   document.querySelector("#auditReport").textContent = t("reportText");
 }
 
