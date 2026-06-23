@@ -405,6 +405,29 @@ canvas {
   gap: 10px;
 }
 
+.expert-list,
+.reg-list,
+.evidence-list,
+.version-list,
+.comment-list,
+.api-list,
+.pipeline-list,
+.tenant-list,
+.pricing-grid,
+.quick-scan-grid,
+.template-grid,
+.trust-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.pricing-grid,
+.quick-scan-grid,
+.template-grid,
+.trust-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .role-home-grid,
 .connector-grid,
 .admin-grid,
@@ -674,6 +697,30 @@ canvas {
   font-weight: 900;
 }
 
+.saas-row,
+.pricing-card {
+  display: grid;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  background: #fbfcfb;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.saas-row {
+  grid-template-columns: minmax(240px, 1fr) minmax(140px, auto) 120px;
+}
+
+.pricing-card {
+  min-height: 150px;
+}
+
+.pricing-card strong {
+  color: var(--teal);
+  font-size: 18px;
+}
+
 #ragSearch,
 #chatInput {
   min-height: 40px;
@@ -791,6 +838,10 @@ pre {
   .academy-grid,
   .value-grid,
   .export-grid,
+  .pricing-grid,
+  .quick-scan-grid,
+  .template-grid,
+  .trust-grid,
   .lineage-flow {
     grid-template-columns: 1fr;
   }
@@ -819,7 +870,8 @@ pre {
   }
 
   .product-row-wide,
-  .mobile-task {
+  .mobile-task,
+  .saas-row {
     grid-template-columns: 1fr;
   }
 

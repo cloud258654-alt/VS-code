@@ -183,6 +183,73 @@ const optimizationData = {
     { key: "carbonFeeAvoided", value: "NTD 225,000" },
     { key: "energySaving", value: "NTD 564,000" },
     { key: "supplierResponse", value: "78%" }
+  ],
+  expertReviews: [
+    { key: "carbonModel", reviewer: "Carbon Accountant", due: "2026/07/10", status: "reviewing" },
+    { key: "supplierPack", reviewer: "Supply Chain Advisor", due: "2026/07/12", status: "pending" },
+    { key: "disclosureDraft", reviewer: "Policy Expert", due: "2026/07/15", status: "ready" }
+  ],
+  regulations: [
+    { key: "CSRD", region: "EU", effective: "2026", action: "doubleMateriality", status: "warning" },
+    { key: "CBAM", region: "EU", effective: "2026Q3", action: "supplierEmbeddedCarbon", status: "critical" },
+    { key: "SECClimate", region: "US", effective: "TBD", action: "monitorRule", status: "warning" },
+    { key: "TaiwanCarbonFee", region: "TW", effective: "2026", action: "carbonFeeBudget", status: "normal" }
+  ],
+  evidenceLibrary: [
+    { key: "utilityBill", version: "v3", owner: "Facility", status: "ready", expires: "2026/12/31" },
+    { key: "supplierDeclaration", version: "v1", owner: "Procurement", status: "missing", expires: "2026/07/01" },
+    { key: "calculationWorkbook", version: "v2", owner: "ESG Office", status: "reviewing", expires: "2026/09/30" }
+  ],
+  reportVersions: [
+    { key: "v1", editor: "Amy", change: "baselineDraft", status: "archived" },
+    { key: "v2", editor: "Ben", change: "supplierEvidenceAdded", status: "reviewing" },
+    { key: "submitted", editor: "CFO", change: "boardPackReady", status: "ready" }
+  ],
+  comments: [
+    { author: "Executive", key: "clarifyCarbonFee", status: "pending" },
+    { author: "Facility", key: "attachMeterPhoto", status: "ready" },
+    { author: "Procurement", key: "supplierDelayNote", status: "reviewing" }
+  ],
+  apis: [
+    { key: "emissionsApi", endpoint: "/api/emissions", schedule: "hourly", status: "normal" },
+    { key: "supplierApi", endpoint: "/api/suppliers", schedule: "daily", status: "warning" },
+    { key: "reportApi", endpoint: "/api/reports", schedule: "manual", status: "normal" }
+  ],
+  pipelines: [
+    { key: "erpSync", uptime: "99.9%", status: "normal" },
+    { key: "emsSync", uptime: "98.2%", status: "warning" },
+    { key: "ragIndex", uptime: "100%", status: "normal" },
+    { key: "aiService", uptime: "99.4%", status: "normal" }
+  ],
+  tenants: [
+    { name: "Taiwan Smart Manufacturing", plan: "Enterprise", isolation: "Dedicated schema", status: "normal" },
+    { name: "Green Food Co.", plan: "Professional", isolation: "Shared cluster", status: "normal" },
+    { name: "Metal Works Ltd.", plan: "Starter", isolation: "Shared cluster", status: "warning" }
+  ],
+  packages: [
+    { key: "Starter", suppliers: 20, ai: 100, frameworks: 2 },
+    { key: "Professional", suppliers: 100, ai: 1000, frameworks: 6 },
+    { key: "Enterprise", suppliers: 500, ai: 10000, frameworks: 12 }
+  ],
+  quickScan: [
+    { key: "industry", value: "Electronics" },
+    { key: "electricity", value: "250,000 kWh" },
+    { key: "gas", value: "5,000 m3" },
+    { key: "estimatedCarbon", value: "3,250 tonCO2e" },
+    { key: "estimatedValue", value: "NTD 1.2M" }
+  ],
+  industryTemplates: [
+    { key: "electronics", kpi: "PCF, SMT energy, Scope 3 materials" },
+    { key: "food", kpi: "Cold chain, steam, packaging waste" },
+    { key: "plastics", kpi: "Resin, electricity, scrap rate" },
+    { key: "metal", kpi: "Heat treatment, gas, recycled content" }
+  ],
+  trustCenter: [
+    { key: "SOC2", status: "planned" },
+    { key: "ISO27001", status: "ready" },
+    { key: "encryption", status: "ready" },
+    { key: "backup", status: "ready" },
+    { key: "auditRetention", status: "reviewing" }
   ]
 };
 
@@ -281,6 +348,30 @@ const dictionaries = {
     academyBadge: "知識庫",
     valueTitle: "ROI / 商業價值頁",
     valueBadge: "導入效益",
+    expertReviewTitle: "專家協作入口",
+    expertReviewBadge: "顧問審閱",
+    regTrackerTitle: "法規追蹤器",
+    regTrackerBadge: "更新監控",
+    evidenceTitle: "佐證資料庫",
+    evidenceBadge: "文件治理",
+    versionTitle: "報告版本控制",
+    versionBadge: "版本差異",
+    commentTitle: "協作留言",
+    commentBadge: "待回覆",
+    apiTitle: "Data Contract / API 管理",
+    apiBadge: "同步契約",
+    pipelineTitle: "資料管線健康狀態",
+    pipelineBadge: "服務監控",
+    tenantTitle: "Multi-entity / Multi-tenant 管理",
+    tenantBadge: "資料隔離",
+    pricingTitle: "Pricing / Package",
+    pricingBadge: "產品方案",
+    quickScanTitle: "快速碳排估算",
+    quickScanBadge: "Quick Estimate",
+    templateTitle: "產業模板",
+    templateBadge: "預設 KPI",
+    trustTitle: "Trust Center / Security",
+    trustBadge: "企業信任",
     totalCarbon: "總碳排",
     totalCarbonHint: "較目標 +8%，需要處理",
     scope1Hint: "天然氣、柴油、LPG",
@@ -588,6 +679,56 @@ const dictionaries = {
         carbonFeeAvoided: "避免碳費",
         energySaving: "節能節費",
         supplierResponse: "供應商回覆率"
+      },
+      saasLabels: {
+        carbonModel: "碳排計算模型",
+        supplierPack: "供應商資料包",
+        disclosureDraft: "揭露報告草稿",
+        doubleMateriality: "完成雙重重大性盤點",
+        supplierEmbeddedCarbon: "蒐集供應商內含碳",
+        monitorRule: "追蹤法規最終版本",
+        carbonFeeBudget: "建立碳費預算",
+        utilityBill: "公用事業帳單",
+        supplierDeclaration: "供應商排放聲明",
+        calculationWorkbook: "計算工作底稿",
+        baselineDraft: "建立初版基準年草稿",
+        supplierEvidenceAdded: "新增供應商佐證",
+        boardPackReady: "董事會版本完成",
+        archived: "已封存",
+        clarifyCarbonFee: "請補充碳費財務衝擊說明",
+        attachMeterPhoto: "已補上電表照片佐證",
+        supplierDelayNote: "供應商延遲原因待確認",
+        emissionsApi: "排放資料 API",
+        supplierApi: "供應商 API",
+        reportApi: "報告 API",
+        erpSync: "ERP 同步",
+        emsSync: "EMS 同步",
+        ragIndex: "RAG 索引",
+        aiService: "AI 服務",
+        industry: "產業",
+        electricity: "用電量",
+        gas: "天然氣",
+        estimatedCarbon: "初估碳排",
+        estimatedValue: "導入價值",
+        electronics: "電子業",
+        food: "食品業",
+        plastics: "塑膠業",
+        metal: "金屬加工",
+        encryption: "資料加密",
+        backup: "備份與復原",
+        auditRetention: "稽核紀錄留存",
+        planned: "規劃中",
+        endpoint: "端點",
+        schedule: "排程",
+        region: "地區",
+        effective: "生效日",
+        reviewer: "審閱者",
+        version: "版本",
+        uploadedBy: "負責人",
+        packageLimit: "方案限制",
+        suppliers: "供應商",
+        frameworks: "框架",
+        aiQuota: "AI 次數"
       }
     },
     agentSteps: [
@@ -745,6 +886,30 @@ const dictionaries = {
     academyBadge: "Learning hub",
     valueTitle: "ROI / Business Value Dashboard",
     valueBadge: "Business impact",
+    expertReviewTitle: "Expert Review Portal",
+    expertReviewBadge: "Advisor review",
+    regTrackerTitle: "Regulation Tracker",
+    regTrackerBadge: "Update monitoring",
+    evidenceTitle: "Evidence Library",
+    evidenceBadge: "Document governance",
+    versionTitle: "Report Version Control",
+    versionBadge: "Version diff",
+    commentTitle: "Collaboration Comments",
+    commentBadge: "Needs reply",
+    apiTitle: "Data Contract / API Management",
+    apiBadge: "Sync contract",
+    pipelineTitle: "Data Pipeline Health",
+    pipelineBadge: "Service monitoring",
+    tenantTitle: "Multi-entity / Multi-tenant Management",
+    tenantBadge: "Data isolation",
+    pricingTitle: "Pricing / Package",
+    pricingBadge: "Product plans",
+    quickScanTitle: "Quick Carbon Estimate",
+    quickScanBadge: "Quick Estimate",
+    templateTitle: "Industry Templates",
+    templateBadge: "Default KPI",
+    trustTitle: "Trust Center / Security",
+    trustBadge: "Enterprise trust",
     totalCarbon: "Total Carbon",
     totalCarbonHint: "+8% above target, action required",
     scope1Hint: "Natural gas, diesel, LPG",
@@ -1052,6 +1217,56 @@ const dictionaries = {
         carbonFeeAvoided: "Carbon fee avoided",
         energySaving: "Energy cost saved",
         supplierResponse: "Supplier response rate"
+      },
+      saasLabels: {
+        carbonModel: "Carbon calculation model",
+        supplierPack: "Supplier data pack",
+        disclosureDraft: "Disclosure report draft",
+        doubleMateriality: "Complete double materiality assessment",
+        supplierEmbeddedCarbon: "Collect supplier embedded carbon",
+        monitorRule: "Monitor final regulation",
+        carbonFeeBudget: "Build carbon fee budget",
+        utilityBill: "Utility bill",
+        supplierDeclaration: "Supplier emission statement",
+        calculationWorkbook: "Calculation workbook",
+        baselineDraft: "Create baseline year draft",
+        supplierEvidenceAdded: "Add supplier evidence",
+        boardPackReady: "Board pack ready",
+        archived: "Archived",
+        clarifyCarbonFee: "Add carbon fee financial impact",
+        attachMeterPhoto: "Meter photo evidence attached",
+        supplierDelayNote: "Supplier delay reason pending",
+        emissionsApi: "Emissions API",
+        supplierApi: "Supplier API",
+        reportApi: "Report API",
+        erpSync: "ERP sync",
+        emsSync: "EMS sync",
+        ragIndex: "RAG index",
+        aiService: "AI service",
+        industry: "Industry",
+        electricity: "Electricity",
+        gas: "Natural gas",
+        estimatedCarbon: "Estimated carbon",
+        estimatedValue: "Implementation value",
+        electronics: "Electronics",
+        food: "Food",
+        plastics: "Plastics",
+        metal: "Metal processing",
+        encryption: "Data encryption",
+        backup: "Backup and recovery",
+        auditRetention: "Audit log retention",
+        planned: "Planned",
+        endpoint: "Endpoint",
+        schedule: "Schedule",
+        region: "Region",
+        effective: "Effective",
+        reviewer: "Reviewer",
+        version: "Version",
+        uploadedBy: "Owner",
+        packageLimit: "Package limits",
+        suppliers: "Suppliers",
+        frameworks: "Frameworks",
+        aiQuota: "AI quota"
       }
     },
     agentSteps: [
@@ -1662,6 +1877,95 @@ function renderProductUx() {
   </article>`).join("");
 }
 
+function renderSaasOps() {
+  const labels = t("optimization").saasLabels;
+
+  document.querySelector("#expertReviewList").innerHTML = optimizationData.expertReviews.map((item) => `<div class="saas-row">
+    <div>
+      <strong>${labels[item.key]}</strong>
+      <p class="muted">${labels.reviewer}: ${item.reviewer} · ${t("due")}: ${item.due}</p>
+    </div>
+    <span class="status ${item.status === "ready" ? "normal" : item.status === "reviewing" ? "warning" : "critical"}">${t("optimization").supplierPortalStatuses[item.status] || labels[item.status] || item.status}</span>
+  </div>`).join("");
+
+  document.querySelector("#regTrackerList").innerHTML = optimizationData.regulations.map((item) => `<div class="saas-row">
+    <div>
+      <strong>${item.key}</strong>
+      <p class="muted">${labels.region}: ${item.region} · ${labels.effective}: ${item.effective}</p>
+    </div>
+    <span>${labels[item.action]}</span>
+    <span class="status ${item.status}">${t("optimization").risks[item.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#evidenceList").innerHTML = optimizationData.evidenceLibrary.map((item) => `<div class="saas-row">
+    <div>
+      <strong>${labels[item.key]}</strong>
+      <p class="muted">${labels.version}: ${item.version} · ${labels.uploadedBy}: ${translateOptimization(item.owner, "projects")}</p>
+    </div>
+    <span>${t("due")}: ${item.expires}</span>
+    <span class="status ${item.status === "ready" ? "normal" : item.status === "missing" ? "critical" : "warning"}">${t("optimization").supplierPortalStatuses[item.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#versionList").innerHTML = optimizationData.reportVersions.map((item) => `<div class="timeline-item">
+    <strong>${item.key}</strong>
+    <p class="muted">${item.editor} · ${labels[item.change]}</p>
+    <span class="status ${item.status === "ready" ? "normal" : item.status === "reviewing" ? "warning" : "normal"}">${labels[item.status] || t("optimization").supplierPortalStatuses[item.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#commentList").innerHTML = optimizationData.comments.map((item) => `<div class="source-item">
+    <strong>${item.author}</strong>
+    <p class="muted">${labels[item.key]}</p>
+    <span class="status ${item.status === "ready" ? "normal" : item.status === "reviewing" ? "warning" : "critical"}">${t("optimization").supplierPortalStatuses[item.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#apiList").innerHTML = optimizationData.apis.map((api) => `<div class="saas-row">
+    <div>
+      <strong>${labels[api.key]}</strong>
+      <p class="muted">${labels.endpoint}: ${api.endpoint}</p>
+    </div>
+    <span>${labels.schedule}: ${api.schedule}</span>
+    <span class="status ${api.status}">${t("optimization").risks[api.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#pipelineList").innerHTML = optimizationData.pipelines.map((pipe) => `<div class="saas-row">
+    <div>
+      <strong>${labels[pipe.key]}</strong>
+      <p class="muted">Uptime: ${pipe.uptime}</p>
+    </div>
+    <span class="status ${pipe.status}">${t("optimization").risks[pipe.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#tenantList").innerHTML = optimizationData.tenants.map((tenant) => `<div class="saas-row">
+    <div>
+      <strong>${tenant.name}</strong>
+      <p class="muted">${tenant.plan} · ${tenant.isolation}</p>
+    </div>
+    <span class="status ${tenant.status}">${t("optimization").risks[tenant.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#pricingGrid").innerHTML = optimizationData.packages.map((plan) => `<article class="pricing-card">
+    <strong>${plan.key}</strong>
+    <p>${labels.suppliers}: ${plan.suppliers}</p>
+    <p>${labels.aiQuota}: ${formatNumber(plan.ai)}</p>
+    <p>${labels.frameworks}: ${plan.frameworks}</p>
+  </article>`).join("");
+
+  document.querySelector("#quickScanGrid").innerHTML = optimizationData.quickScan.map((item) => `<article class="knowledge-item">
+    <strong>${labels[item.key]}</strong>
+    <p>${item.value}</p>
+  </article>`).join("");
+
+  document.querySelector("#templateGrid").innerHTML = optimizationData.industryTemplates.map((template) => `<article class="knowledge-item">
+    <strong>${labels[template.key]}</strong>
+    <p>${template.kpi}</p>
+  </article>`).join("");
+
+  document.querySelector("#trustGrid").innerHTML = optimizationData.trustCenter.map((item) => `<article class="connector-card">
+    <strong>${labels[item.key] || item.key}</strong>
+    <span class="status ${item.status === "ready" ? "normal" : item.status === "reviewing" ? "warning" : "critical"}">${labels[item.status] || t("optimization").supplierPortalStatuses[item.status]}</span>
+  </article>`).join("");
+}
+
 function addMessage(text, role = "assistant") {
   const log = document.querySelector("#chatLog");
   const message = document.createElement("div");
@@ -1717,6 +2021,7 @@ function renderAll() {
   renderAssets();
   renderBenchmark();
   renderProductUx();
+  renderSaasOps();
   document.querySelector("#auditReport").textContent = t("reportText");
 }
 

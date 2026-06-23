@@ -53,6 +53,16 @@
       <button class="nav-item" data-view="admin" type="button">Admin</button>
       <button class="nav-item" data-view="academy" type="button">Academy</button>
       <button class="nav-item" data-view="valueDashboard" type="button">Value</button>
+      <button class="nav-item" data-view="expertReview" type="button">Expert</button>
+      <button class="nav-item" data-view="regTracker" type="button">Reg Tracker</button>
+      <button class="nav-item" data-view="evidence" type="button">Evidence</button>
+      <button class="nav-item" data-view="review" type="button">Review</button>
+      <button class="nav-item" data-view="apiHealth" type="button">API Health</button>
+      <button class="nav-item" data-view="tenants" type="button">Tenants</button>
+      <button class="nav-item" data-view="pricing" type="button">Pricing</button>
+      <button class="nav-item" data-view="quickScan" type="button">Quick Scan</button>
+      <button class="nav-item" data-view="templates" type="button">Templates</button>
+      <button class="nav-item" data-view="trustCenter" type="button">Trust</button>
       <button class="nav-item" data-view="agent" type="button">AI Agent</button>
       <button class="nav-item" data-view="rag" type="button">RAG Knowledge</button>
       <button class="nav-item" data-view="line" type="button">LINE Assistant</button>
@@ -532,6 +542,124 @@
             <span class="status normal" data-i18n="valueBadge">導入效益</span>
           </div>
           <div class="value-grid" id="valueGrid"></div>
+        </div>
+      </section>
+
+      <section class="view" id="expertReview">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="expertReviewTitle">專家協作入口</h2>
+            <span class="status normal" data-i18n="expertReviewBadge">顧問審閱</span>
+          </div>
+          <div class="expert-list" id="expertReviewList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="regTracker">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="regTrackerTitle">法規追蹤器</h2>
+            <span class="status warning" data-i18n="regTrackerBadge">更新監控</span>
+          </div>
+          <div class="reg-list" id="regTrackerList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="evidence">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="evidenceTitle">佐證資料庫</h2>
+            <span class="status warning" data-i18n="evidenceBadge">文件治理</span>
+          </div>
+          <div class="evidence-list" id="evidenceList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="review">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="versionTitle">報告版本控制</h2>
+              <span class="status normal" data-i18n="versionBadge">版本差異</span>
+            </div>
+            <div class="version-list" id="versionList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="commentTitle">協作留言</h2>
+              <span class="status warning" data-i18n="commentBadge">待回覆</span>
+            </div>
+            <div class="comment-list" id="commentList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="apiHealth">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="apiTitle">Data Contract / API 管理</h2>
+              <span class="status normal" data-i18n="apiBadge">同步契約</span>
+            </div>
+            <div class="api-list" id="apiList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="pipelineTitle">資料管線健康狀態</h2>
+              <span class="status warning" data-i18n="pipelineBadge">服務監控</span>
+            </div>
+            <div class="pipeline-list" id="pipelineList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="tenants">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="tenantTitle">Multi-entity / Multi-tenant 管理</h2>
+            <span class="status normal" data-i18n="tenantBadge">資料隔離</span>
+          </div>
+          <div class="tenant-list" id="tenantList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="pricing">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="pricingTitle">Pricing / Package</h2>
+            <span class="status normal" data-i18n="pricingBadge">產品方案</span>
+          </div>
+          <div class="pricing-grid" id="pricingGrid"></div>
+        </div>
+      </section>
+
+      <section class="view" id="quickScan">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="quickScanTitle">快速碳排估算</h2>
+            <span class="status normal" data-i18n="quickScanBadge">Quick Estimate</span>
+          </div>
+          <div class="quick-scan-grid" id="quickScanGrid"></div>
+        </div>
+      </section>
+
+      <section class="view" id="templates">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="templateTitle">產業模板</h2>
+            <span class="status normal" data-i18n="templateBadge">預設 KPI</span>
+          </div>
+          <div class="template-grid" id="templateGrid"></div>
+        </div>
+      </section>
+
+      <section class="view" id="trustCenter">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="trustTitle">Trust Center / Security</h2>
+            <span class="status normal" data-i18n="trustBadge">企業信任</span>
+          </div>
+          <div class="trust-grid" id="trustGrid"></div>
         </div>
       </section>
 

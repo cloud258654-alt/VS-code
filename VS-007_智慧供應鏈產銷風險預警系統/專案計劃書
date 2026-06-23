@@ -1,27 +1,30 @@
 # AI ESG Copilot Platform
 
-## 智慧碳排與能耗風險預警暨AI決策平台
+## 智慧碳排與能耗風險預警暨 AI 決策平台
+
+版本：v1.0 MVP + 產品化優化整合版  
+目標客戶：台灣中小企業，尤其已具備 ERP / MES / EMS / Power BI 的製造與供應鏈企業
 
 ---
 
 # 一、專案背景
 
-近年來，全球供應鏈對 ESG（Environmental、Social、Governance）要求日益提高，尤其碳排放管理已成為企業競爭力的重要指標。
+近年來，全球供應鏈對 ESG（Environmental、Social、Governance）要求日益提高，尤其碳排放管理、供應鏈揭露、產品碳足跡與法規合規，已成為企業競爭力的重要指標。
 
-然而，許多台灣中小企業雖已建置 ERP、MES、EMS 等資訊系統，卻仍面臨以下問題：
+然而，許多台灣中小企業雖已建置 ERP、MES、EMS、Power BI 等資訊系統，仍面臨以下問題：
 
-1. 碳排數據分散於 ERP、MES、EMS 與 Excel。
-2. Power BI 僅能呈現數據，無法提供改善建議。
-3. ISO 14064 文件繁雜，法規理解門檻高。
-4. ESG 專業人才不足。
-5. 稽核報告製作耗時且仰賴人工整理。
-6. 當碳排超標時，缺乏即時且可執行的減碳決策。
+1. 碳排、能耗、供應商與稽核資料分散於 ERP、MES、EMS、Excel、PDF 與人工文件。
+2. Power BI 僅能呈現數據，較難提供可執行的減碳建議與流程追蹤。
+3. ISO 14064、ISO 14067、GHG Protocol、CBAM、CSRD、SBTi 等規範繁雜，法規理解與文件準備門檻高。
+4. ESG 專業人才不足，企業難以自行完成盤查、減碳規劃、稽核與揭露。
+5. 稽核報告與佐證資料製作耗時，且缺乏版本控制、引用來源、審核流程與 audit trail。
+6. 當碳排超標、供應商資料缺漏或法規任務到期時，缺乏即時且可執行的預警與任務管理。
 
-因此，本專案將建立：
+因此，本專案建立：
 
 「AI ESG Copilot Platform」
 
-協助企業從資料監控、風險預警、法規查詢、減碳建議到稽核報告，形成完整的 ESG 智慧決策流程。
+協助企業從資料監控、風險預警、法規查詢、AI 分析、減碳建議、供應商協作、稽核報告到 SaaS 化營運管理，形成完整的一站式 ESG 智慧決策流程。
 
 ---
 
@@ -29,368 +32,557 @@
 
 建置一套 AI ESG 智慧決策平台，提供：
 
-■ 即時碳排與能耗監控
-
-■ Power BI ESG 戰情室
-
-■ 碳排超標即時預警
-
-■ AI 自動分析超標原因
-
-■ ISO 14064 智慧查詢
-
-■ 減碳方案建議
-
-■ 稽核報告自動產生
-
-■ LINE AI 助理即時問答
+- 即時碳排與能耗監控
+- ESG Dashboard 與 Power BI 戰情室概念
+- 碳排、能耗、供應商、法規與資料品質預警
+- AI 自動分析超標原因與 Root Cause
+- ISO / GHG / CBAM / CSRD / SBTi 法規與知識查詢
+- 產品碳足跡 PCF 與 BOM 減碳分析
+- 減碳方案、MACC、Scenario、碳價與 ROI 試算
+- 供應商資料收集與 Scope 3 風險管理
+- 稽核報告、Disclosure Builder、佐證資料庫與版本控制
+- LINE / Copilot 自然語言問答
+- 多角色、多租戶、權限、信任中心與 SaaS 產品化能力
 
 ---
 
-# 三、系統架構
+# 三、目前已完成 MVP
 
-資料來源
+目前已完成一個零依賴靜態前端 MVP，檔案如下：
 
-ERP
-MES
-EMS
-IoT電表
-Excel
-PDF文件
+- `index.html`
+- `styles.css`
+- `app.js`
+- `OPTIMIZATIONS.md`
+- `OPTIMIZATIONS_V2.md`
+- `OPTIMIZATIONS_V3.md`
+- `OPTIMIZATIONS_V4.md`
+- `OPTIMIZATIONS_V5.md`
 
-↓
+目前功能支援：
 
-資料整合平台
+- 中英切換介面
+- Dashboard / AI Agent / RAG / LINE Assistant / Audit Report
+- 多輪參考國外同類產品後加入的 ESG、碳管理、供應鏈、稽核、SaaS 化模組
+- 靜態 mock data 展示，不需安裝套件即可開啟 `index.html` 瀏覽
 
-↓
+---
 
-Power BI ESG Dashboard
+# 四、系統架構
 
-↓
+資料來源：
 
-AI ESG Agent
+- ERP
+- MES
+- EMS
+- IoT 電表
+- Excel / CSV
+- PDF 文件
+- Utility Bills
+- Supplier Portal
+- LINE / Email
+- 外部法規與知識庫
 
-↓
+資料處理：
 
-RAG Knowledge Base
-
-↓
-
-ISO14064
-減碳SOP
-稽核報告
-歷史案例
-
-↓
+1. Data Hub 整合資料來源與品質檢查
+2. Calculation 模組套用排放係數、公式與 Scope 分類
+3. RAG Knowledge Base 管理 ISO、SOP、歷史案例與法規
+4. AI ESG Agent 分析異常、產生建議與報告草稿
+5. Workflow / Inbox / Notification 追蹤任務與簽核
+6. Reporting / Disclosure / Assurance 支援揭露、佐證與稽核
 
 輸出：
 
-1. 風險預警
-2. 減碳建議
-3. 稽核報告
-4. LINE Bot
-5. Email 通知
+- ESG Dashboard
+- 風險預警
+- 減碳建議
+- Scenario / MACC / Carbon Price
+- 供應商追蹤
+- 稽核報告
+- LINE / Copilot 問答
+- PDF / Word / Excel / Power BI / XBRL / Board Deck
 
 ---
 
-# 四、Power BI ESG 戰情室
+# 五、核心模組總覽
 
-Dashboard 將展示：
+## 5.1 Dashboard 與預警
 
-【碳排監控】
+- 總碳排、Scope 1、Scope 2、Scope 3
+- 產品碳排強度
+- 碳排趨勢
+- 能源管理
+- 異常預警
+- 碳排超標、用電異常、連續上升等規則
 
-* 總碳排放量
-* Scope1
-* Scope2
-* Scope3
-* 碳排趨勢
+## 5.2 AI ESG Agent
 
-【產品碳排】
+當產品碳排超標時，AI 自動執行：
 
-* 各產品碳排強度
-* 碳排排名
-* 超標產品
+1. 讀取 ERP / MES / EMS 資料
+2. 計算產品碳排
+3. 分析 Root Cause
+4. 查詢 RAG 知識庫
+5. 產生減碳建議
+6. 產出稽核報告草稿
 
-【能源管理】
+## 5.3 RAG ESG 知識庫
 
-* 用電量
-* 天然氣
-* 蒸氣
-* 柴油
-* 再生能源比例
+知識來源包含：
 
-【風險監控】
+- ISO14064-1
+- ISO14067
+- ISO50001
+- GHG Protocol
+- SBTi
+- TCFD
+- ISSB
+- 減碳 SOP
+- 能源管理 SOP
+- 稽核程序
+- 歷史案例
+- 產業最佳實務
 
-* 碳排超標
-* 能耗異常
-* 高風險產品
-* 稽核異常項目
+## 5.4 LINE / Copilot 問答
 
----
+主管可詢問：
 
-# 五、AI ESG Agent
+- Notebook 為什麼碳排超標？
+- 哪個廠區本月用電最高？
+- Scope 3 熱點在哪？
+- 哪個減碳專案 ROI 最好？
+- 哪些佐證文件還沒準備好？
+- 哪些供應商需要優先催繳？
 
-當產品碳排超標：
+系統回覆包含：
 
-AI 自動執行：
-
-Step1
-
-讀取：
-
-ERP
-MES
-EMS
-
-取得：
-
-產量
-用電
-天然氣
-能源消耗
-
-Step2
-
-計算：
-
-產品碳排
-
-Step3
-
-分析：
-
-超標原因
-
-Step4
-
-查詢：
-
-ISO14064
-
-減碳SOP
-
-歷史案例
-
-Step5
-
-產生：
-
-減碳建議
-
-Step6
-
-建立：
-
-稽核報告
+- 數據結果
+- 超標原因
+- 引用來源
+- 缺漏資料
+- 建議下一步
 
 ---
 
-# 六、RAG ESG 知識庫
+# 六、已完成優化項目整理
 
-知識來源：
+## 6.1 第一輪：ESG 核心營運能力
 
-【國際法規】
+新增畫面：
 
-ISO14064-1
+- Data Hub
+- Calculation
+- Supply Chain
+- Action Plan
+- ESG Metrics
 
-ISO14067
+已加入能力：
 
-ISO50001
+1. 資料治理與稽核軌跡
+2. 資料匯入流程
+3. 排放係數與計算模型
+4. Scope 3 / 供應鏈模組
+5. 目標管理與減碳專案追蹤
+6. 報告框架選擇
+7. AI 回答引用來源
+8. 異常處理 workflow
+9. 權限角色
+10. 延伸 ESG 指標
 
-GHG Protocol
+## 6.2 第二輪：決策模擬、確信與供應商協作
 
-SBTi
+新增畫面：
+
+- Scenario
+- Disclosure
+- Assurance
+- Organization
+- Operations
+- Supplier Portal
+- Copilot
+
+已加入能力：
+
+1. What-if 情境模擬
+2. MACC 邊際減碳成本
+3. 第三方確信準備
+4. ESG 報告編輯器
+5. 組織層級 / 廠區 / 產品線 Roll-up
+6. 資料標籤與血緣
+7. 交通 / 商旅 / 車隊排放
+8. 水質 / 廢棄物細節
+9. 供應商資料收集 Portal
+10. 自然語言資料查詢 prompt library
+
+## 6.3 第三輪：法規、產品碳足跡與財務風險
+
+新增畫面：
+
+- Compliance
+- PCF Designer
+- Carbon Price
+- Climate Risk
+- Utilities
+- Assets
+- Benchmark
+
+已加入能力：
+
+1. CSRD / CBAM / SBTi / CDP 法規任務中心
+2. 產品碳足跡 PCF / BOM 產品設計模組
+3. 排放係數版本管理
+4. 任務收件匣 Inbox
+5. 氣候實體風險 / 轉型風險
+6. 內部碳價 / Carbon Fee
+7. 公用事業帳單分析
+8. 資產生命週期管理
+9. 不確定性 / 信賴區間
+10. 同業 benchmark / peer comparison
+
+## 6.4 第四輪：產品化體驗與導入能力
+
+新增畫面：
+
+- Onboarding
+- Role Home
+- Connectors
+- Notifications
+- Mobile Field
+- Export Center
+- Admin
+- Academy
+- Value
+
+已加入能力：
+
+1. 首次導入精靈 Onboarding Wizard
+2. 角色化首頁
+3. 資料匯入 Wizard
+4. 通知中心 Notification Center
+5. 行動版現場填報 App 體驗
+6. Connector Hub
+7. AI 可信度面板
+8. 報告輸出中心
+9. Demo Mode / 產品導覽
+10. 安全、權限、稽核設定
+11. Regulation Academy 學習中心
+12. ROI / 商業價值頁
+
+## 6.5 第五輪：正式 SaaS 營運能力
+
+新增畫面：
+
+- Expert
+- Reg Tracker
+- Evidence
+- Review
+- API Health
+- Tenants
+- Pricing
+- Quick Scan
+- Templates
+- Trust
+
+已加入能力：
+
+1. Customer Success / 專家協作入口
+2. Regulation Tracker 法規追蹤器
+3. Evidence Library 佐證資料庫
+4. Report Version Control
+5. Comment / Review 協作留言
+6. Data Contract / API 管理
+7. Multi-entity / Multi-tenant SaaS 管理
+8. Pricing / Package 頁面
+9. Status / Data Pipeline Health
+10. Quick Carbon Scanner
+11. Industry Templates
+12. Trust Center / Security Page
 
 ---
 
-【企業內部文件】
+# 七、完整介面清單
 
-減碳SOP
+目前 MVP 介面包含：
 
-能源管理SOP
-
-稽核程序書
-
-環境政策
-
-設備手冊
-
-歷史稽核報告
-
----
-
-【產業最佳實務】
-
-電子業
-
-食品業
-
-塑膠業
-
-金屬加工
-
-機械製造
-
----
-
-# 七、LINE AI 助理
-
-主管可直接詢問：
-
-「產品A為什麼碳排超標？」
-
-AI回答：
-
-1. 超標比例
-
-2. 超標原因
-
-3. 依據ISO條文
-
-4. 建議改善方案
-
-5. 預估減碳效果
-
----
-
-# 八、自動稽核報告
-
-系統自動產生：
-
-異常說明
-
-超標原因
-
-ISO依據
-
-改善措施
-
-減碳效益
-
-完成期限
-
-責任部門
-
-主管僅需確認即可送出。
+- Dashboard
+- Data Hub
+- Calculation
+- Supply Chain
+- Action Plan
+- ESG Metrics
+- Scenario
+- Disclosure
+- Assurance
+- Organization
+- Operations
+- Supplier Portal
+- Copilot
+- Compliance
+- PCF Designer
+- Carbon Price
+- Climate Risk
+- Utilities
+- Assets
+- Benchmark
+- Onboarding
+- Role Home
+- Connectors
+- Notifications
+- Mobile Field
+- Export Center
+- Admin
+- Academy
+- Value
+- Expert
+- Reg Tracker
+- Evidence
+- Review
+- API Health
+- Tenants
+- Pricing
+- Quick Scan
+- Templates
+- Trust
+- AI Agent
+- RAG Knowledge
+- LINE Assistant
+- Audit Report
 
 ---
 
-# 九、導入時程
+# 八、建議後端資料模型
 
-Phase 1
+後續若進入完整系統開發，建議建立以下資料表 / domain model：
 
-需求訪談
-
-資料盤點
-
-ESG指標確認
-
-2週
-
----
-
-Phase 2
-
-ERP/MES/EMS串接
-
-資料整合
-
-3週
-
----
-
-Phase 3
-
-Power BI Dashboard
-
-風險預警
-
-3週
-
----
-
-Phase 4
-
-RAG知識庫
-
-ISO文件導入
-
-2週
+- users
+- roles
+- tenants
+- organizations
+- facilities
+- production_lines
+- products
+- data_sources
+- data_ingestion_jobs
+- emission_factors
+- calculation_models
+- carbon_records
+- product_carbon_footprints
+- suppliers
+- supplier_requests
+- reduction_projects
+- scenario_models
+- macc_items
+- audit_events
+- evidence_files
+- disclosure_reports
+- report_versions
+- comments
+- compliance_tasks
+- regulations
+- climate_risks
+- utility_bills
+- assets
+- notifications
+- api_contracts
+- pipeline_status
+- pricing_plans
+- trust_controls
 
 ---
 
-Phase 5
+# 九、建議技術架構
 
-AI Agent
+## Frontend
 
-LINE Bot
+- React
+- Next.js
+- TypeScript
+- Responsive Web / PWA
+- i18n 中英切換
 
-自動報告
+## Backend
 
-4週
+- Python
+- FastAPI
+- REST API / WebSocket
+
+## Database
+
+- PostgreSQL
+- Row-level tenancy / tenant isolation
+
+## Vector Database
+
+- Qdrant 或 Chroma
+
+## AI / RAG
+
+- OpenAI GPT
+- Gemini
+- Claude
+- RAG source citation
+- AI confidence / missing data hints
+
+## Dashboard / BI
+
+- Power BI
+- Internal web dashboard
+
+## Integration
+
+- ERP / MES / EMS
+- Excel / CSV upload
+- PDF / OCR
+- Utility Bills
+- LINE Bot
+- Email
+- Supplier Portal
 
 ---
 
-預計：
+# 十、導入時程
 
-14~16週完成
+## Phase 1：需求訪談與資料盤點（2 週）
+
+- 需求訪談
+- ESG 指標確認
+- 資料來源盤點
+- 產業模板選擇
+- Onboarding 設定
+
+## Phase 2：資料整合與 Data Hub（3 週）
+
+- ERP / MES / EMS / Excel 串接
+- Data Hub
+- Connector Hub
+- Data Quality Check
+- Pipeline Health
+
+## Phase 3：Dashboard 與風險預警（3 週）
+
+- ESG Dashboard
+- Scope 1 / 2 / 3
+- Product Carbon
+- Energy Dashboard
+- Notification Center
+
+## Phase 4：Calculation、RAG 與法規知識庫（3 週）
+
+- 排放係數管理
+- 計算模型
+- RAG Knowledge Base
+- ISO / GHG / CBAM / CSRD / SBTi
+- Regulation Tracker
+
+## Phase 5：AI Agent、Scenario 與減碳專案（4 週）
+
+- AI Root Cause
+- Scenario Simulator
+- MACC
+- Carbon Price
+- Action Plan
+- Copilot 問答
+
+## Phase 6：Disclosure、Assurance 與供應商協作（4 週）
+
+- Disclosure Builder
+- Evidence Library
+- Report Version Control
+- Assurance Checklist
+- Supplier Portal
+- Expert Review
+
+## Phase 7：SaaS 化與商業化能力（3 週）
+
+- Tenant Management
+- Pricing / Package
+- Trust Center
+- Admin / Permission
+- Export Center
+- Value Dashboard
+
+預計完整平台化：22~26 週  
+目前靜態 MVP：已完成前端展示版
 
 ---
 
-# 十、導入效益
+# 十一、導入效益
 
-導入前
+## 導入前
 
-人工整理報表
+- 人工整理報表
+- 稽核耗時
+- 法規難查詢
+- 缺乏減碳方向
+- ESG 人力不足
+- 供應商資料催繳困難
+- 佐證資料分散
+- 報告版本難追蹤
+- 碳排與財務風險無法連動
 
-稽核耗時
+## 導入後
 
-法規難查詢
-
-缺乏減碳方向
-
-ESG人力不足
-
----
-
-導入後
-
-即時監控碳排
-
-AI自動預警
-
-秒級ISO查詢
-
-自動減碳建議
-
-稽核報告自動生成
-
-LINE即時查詢
+- 即時監控碳排與能耗
+- AI 自動預警與 Root Cause 分析
+- 秒級 ISO / 法規查詢
+- 自動減碳建議與 Scenario 試算
+- 供應商資料追蹤與 Scope 3 風險管理
+- 稽核報告與佐證資料自動整理
+- 報告版本、留言與簽核可追溯
+- 碳價、節費與 ROI 可量化
+- 支援多租戶 SaaS 化與企業採購信任需求
 
 ---
 
-# 十一、未來擴充方向
+# 十二、驗收重點
 
-本平台採模組化架構：
+目前 MVP 驗收重點：
 
-未來可快速延伸：
+- 可直接開啟 `index.html` 使用
+- 全站中英切換正常
+- Dashboard 可展示 ESG 與碳排狀態
+- AI Agent、RAG、LINE Assistant、Audit Report 可展示完整決策流程
+- 所有新增模組都有對應畫面與 mock data
+- `app.js` 語法檢查通過
+- HTML DOM id 與 i18n key 完整對應
 
-電子業
+後續正式開發驗收重點：
 
-食品業
+- 真實資料可匯入、驗證與計算
+- 排放係數、公式、資料血緣可追溯
+- AI 回答具引用來源與可信度提示
+- 供應商 Portal 可實際填報與催繳
+- 報告可輸出 PDF / Word / Excel / XBRL
+- 權限、租戶、audit trail 與 Trust Center 符合企業採購要求
 
-塑膠業
+---
 
-金屬加工
+# 十三、未來擴充方向
 
-機械業
+本平台採模組化架構，未來可快速延伸：
 
-紡織業
+- 電子業
+- 食品業
+- 塑膠業
+- 金屬加工
+- 機械業
+- 紡織業
+- 化工業
+- 物流業
+- 服務業
 
-化工業
-
-成為：
+最終產品定位：
 
 「AI ESG Copilot Platform」
 
-提供台灣中小企業一站式 ESG 智慧決策服務。
+協助台灣中小企業：
+
+- 看得到碳排
+- 找得到原因
+- 看得懂法規
+- 做得出減碳
+- 管得住供應鏈
+- 交得出稽核
+- 算得出商業價值
+- 走向可規模化的 ESG SaaS 服務
