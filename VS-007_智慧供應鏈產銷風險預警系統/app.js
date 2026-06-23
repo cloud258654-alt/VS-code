@@ -11,6 +11,69 @@ const energy = [
   { key: "renewableEnergy", value: 20, unit: "%", change: -12 }
 ];
 
+const optimizationData = {
+  dataSources: [
+    { key: "ERP", freshness: "08:30", completeness: 98, issues: 2, status: "normal" },
+    { key: "MES", freshness: "08:25", completeness: 94, issues: 5, status: "warning" },
+    { key: "EMS", freshness: "08:31", completeness: 99, issues: 1, status: "normal" },
+    { key: "Excel", freshness: "Yesterday", completeness: 82, issues: 18, status: "warning" },
+    { key: "PDF", freshness: "2026/06/21", completeness: 76, issues: 9, status: "warning" }
+  ],
+  suppliers: [
+    { name: "GreenBoard Materials", category: "Raw materials", emissions: 420, risk: "critical", action: "Request primary activity data" },
+    { name: "Formosa Logistics", category: "Transport", emissions: 180, risk: "warning", action: "Switch route and fuel mix" },
+    { name: "EverPack", category: "Packaging", emissions: 96, risk: "normal", action: "Maintain quarterly evidence" },
+    { name: "Precision Metals", category: "Components", emissions: 240, risk: "critical", action: "Start supplier reduction plan" }
+  ],
+  projects: [
+    { name: "SMT standby optimization", owner: "Manufacturing", due: "2026Q3", reduction: "5%", cost: "Low", progress: 65, status: "In progress" },
+    { name: "Air compressor replacement", owner: "Facility", due: "2026Q4", reduction: "8%", cost: "Medium", progress: 35, status: "Approved" },
+    { name: "Renewable energy procurement", owner: "ESG Office", due: "2026Q4", reduction: "12%", cost: "Medium", progress: 48, status: "In progress" },
+    { name: "Night oven shutdown", owner: "Manufacturing", due: "2026Q3", reduction: "3%", cost: "Low", progress: 80, status: "Verifying" }
+  ],
+  scenarios: [
+    { key: "renewablePower", value: 35, min: 20, max: 80, impact: 0.42 },
+    { key: "productionGrowth", value: 8, min: -10, max: 25, impact: -0.28 },
+    { key: "compressorEfficiency", value: 12, min: 0, max: 30, impact: 0.35 }
+  ],
+  macc: [
+    { key: "nightOven", reduction: 75, cost: 900, rank: 1 },
+    { key: "smtStandby", reduction: 130, cost: 1200, rank: 2 },
+    { key: "renewablePpa", reduction: 310, cost: 1800, rank: 3 },
+    { key: "compressorUpgrade", reduction: 205, cost: 2600, rank: 4 }
+  ],
+  assurance: [
+    { key: "sourceEvidence", owner: "ESG Specialist", status: "reviewing" },
+    { key: "calculationWorkbook", owner: "Finance", status: "ready" },
+    { key: "supplierStatements", owner: "Procurement", status: "missing" },
+    { key: "boardApproval", owner: "Executive", status: "pending" }
+  ],
+  organization: [
+    { level: 1, key: "company", carbon: 3250 },
+    { level: 2, key: "factoryA", carbon: 1720 },
+    { level: 3, key: "smtLine", carbon: 820 },
+    { level: 4, key: "notebook", carbon: 1.45 },
+    { level: 2, key: "factoryB", carbon: 1530 },
+    { level: 3, key: "assemblyLine", carbon: 610 }
+  ],
+  travelFleet: [
+    { key: "fleetDiesel", activity: "48,000 km", carbon: 38, status: "warning" },
+    { key: "businessFlights", activity: "126 trips", carbon: 92, status: "critical" },
+    { key: "commuteSurvey", activity: "82%", carbon: 24, status: "normal" }
+  ],
+  waterWaste: [
+    { key: "waterWithdrawal", value: "18,500 m3", status: "normal" },
+    { key: "wasteRecycle", value: "64%", status: "warning" },
+    { key: "hazardousWaste", value: "12 ton", status: "critical" }
+  ],
+  supplierPortal: [
+    { name: "GreenBoard Materials", due: "2026/06/30", completion: 45, status: "missing" },
+    { name: "Precision Metals", due: "2026/07/05", completion: 62, status: "reviewing" },
+    { name: "EverPack", due: "2026/07/12", completion: 100, status: "ready" },
+    { name: "Formosa Logistics", due: "2026/07/01", completion: 30, status: "pending" }
+  ]
+};
+
 const dictionaries = {
   zh: {
     locale: "zh-TW",
@@ -19,6 +82,49 @@ const dictionaries = {
     exportReport: "產生稽核報告",
     refreshTitle: "重新計算預警",
     moduleNav: "系統模組",
+    dataHubTitle: "資料治理與匯入狀態",
+    dataHubBadge: "5 個來源",
+    auditTrailTitle: "稽核軌跡",
+    needsReviewBadge: "2 筆待確認",
+    roleTitle: "角色與權限",
+    roleBadge: "3 種角色",
+    dataQualityTitle: "資料品質檢查",
+    qualityBadge: "需補件",
+    calculationTitle: "排放係數與計算模型",
+    lineageTitle: "計算透明度",
+    traceableBadge: "可追溯",
+    frameworkTitle: "報告框架映射",
+    frameworkBadge: "6 個框架",
+    sourceTitle: "AI 回答引用來源",
+    sourcedBadge: "附來源",
+    supplyChainTitle: "Scope 3 供應鏈風險",
+    supplierRiskBadge: "2 家高風險",
+    actionPlanTitle: "減碳專案追蹤",
+    projectBadge: "4 個專案",
+    workflowTitle: "異常處理 Workflow",
+    workflowBadge: "處理中",
+    esgMetricsTitle: "延伸 ESG 指標",
+    metricsBadge: "E / S / G",
+    scenarioTitle: "情境模擬 / What-if Analysis",
+    scenarioBadge: "即時計算",
+    maccTitle: "邊際減碳成本 MACC",
+    maccBadge: "成本排序",
+    disclosureTitle: "ESG 報告編輯器",
+    draftBadge: "AI 草稿",
+    dataTagTitle: "資料標籤與血緣",
+    tagBadge: "可重用資料",
+    assuranceTitle: "第三方確信準備",
+    assuranceBadge: "查核中",
+    organizationTitle: "組織層級 Roll-up",
+    rollupBadge: "公司 / 廠區 / 產線 / 產品",
+    travelTitle: "交通 / 商旅 / 車隊排放",
+    fleetBadge: "營運排放",
+    waterWasteTitle: "水質 / 廢棄物細節",
+    waterWasteBadge: "需監控",
+    supplierPortalTitle: "供應商資料收集 Portal",
+    supplierPortalBadge: "3 件逾期",
+    copilotTitle: "自然語言資料查詢",
+    copilotBadge: "常見問題",
     totalCarbon: "總碳排",
     totalCarbonHint: "較目標 +8%，需要處理",
     scope1Hint: "天然氣、柴油、LPG",
@@ -41,6 +147,17 @@ const dictionaries = {
     send: "送出",
     normal: "正常",
     overTarget: "超標",
+    dataFreshness: "更新時間",
+    completeness: "完整率",
+    issueCount: "異常筆數",
+    owner: "負責單位",
+    due: "期限",
+    reduction: "減碳",
+    cost: "成本",
+    progress: "進度",
+    status: "狀態",
+    risk: "風險",
+    action: "處置",
     alertCount: (count) => `${count} 則`,
     productAlertTitle: (name) => `${name} 碳排超標`,
     productAlertText: (over) => `Carbon > Target，超標 ${over}%。`,
@@ -54,6 +171,135 @@ const dictionaries = {
       naturalGas: "Natural Gas",
       steam: "Steam",
       renewableEnergy: "Renewable Energy"
+    },
+    optimization: {
+      yesterday: "昨天",
+      risks: { critical: "高風險", warning: "中風險", normal: "正常" },
+      costs: { Low: "低", Medium: "中" },
+      statuses: { "In progress": "處理中", Approved: "已核准", Verifying: "驗證中" },
+      suppliers: {
+        "Raw materials": "原料",
+        Transport: "運輸",
+        Packaging: "包裝",
+        Components: "零組件",
+        "Request primary activity data": "要求供應商提供一手活動數據",
+        "Switch route and fuel mix": "調整路線與燃料組合",
+        "Maintain quarterly evidence": "維持季度佐證資料",
+        "Start supplier reduction plan": "啟動供應商減碳計畫"
+      },
+      projects: {
+        "SMT standby optimization": "SMT 待機節能",
+        "Air compressor replacement": "空壓機汰換",
+        "Renewable energy procurement": "綠電採購",
+        "Night oven shutdown": "夜間關閉烤箱",
+        Manufacturing: "製造部",
+        Facility: "廠務部",
+        "ESG Office": "ESG 辦公室"
+      },
+      auditTrail: [
+        ["EMS 用電係數更新", "ESG 專員 Amy 已套用 2026 台電排放係數 v1.2。"],
+        ["Notebook 碳排重算", "系統依 MES 產量與 EMS 用電完成重新計算。"],
+        ["Excel 佐證缺漏", "採購原料批次缺少供應商排放聲明，待補件。"]
+      ],
+      roles: [
+        ["主管", "查看 KPI、核准報告、追蹤改善進度。"],
+        ["ESG 專員", "維護係數、確認資料品質、產出稽核報告。"],
+        ["廠務 / 製造", "處理異常、回填改善措施與佐證。"]
+      ],
+      qualityChecks: [
+        ["資料完整率", "Excel 與 PDF 文件仍需補齊供應商聲明。"],
+        ["單位一致性", "能源單位已統一為 kWh / m3 / ton。"],
+        ["異常偵測", "MES 產量與 EMS 用電存在 5 筆高耗能異常。"]
+      ],
+      calculationModels: [
+        ["Scope 1", "天然氣 m3 x 排放係數 2.05 kgCO2e/m3。"],
+        ["Scope 2", "台電用電 kWh x 2026 區域電力係數。"],
+        ["Product Carbon", "產品碳排 = 製程能源 / 產量 + BOM 原料係數。"]
+      ],
+      lineage: ["ERP 訂單與 BOM", "MES 產量與工時", "EMS 能源資料", "排放係數版本", "產品碳排結果"],
+      frameworks: ["ISO14064", "ISO14067", "GHG Protocol", "TCFD", "ISSB", "SBTi"],
+      sources: [
+        ["資料表", "EMS.energy_usage 2026/06/23 08:31"],
+        ["文件", "減碳SOP 第 4.2 節：空壓系統優化"],
+        ["標準", "ISO14064-1：組織層級盤查與報告"]
+      ],
+      workflows: [
+        ["偵測", "Notebook 觸發 RED ALERT。"],
+        ["指派", "系統指派製造部與廠務部處理。"],
+        ["改善", "SMT 待機節能與空壓系統優化執行中。"],
+        ["驗證", "ESG 專員待確認 2026Q4 減碳成效。"]
+      ],
+      esgMetrics: [
+        ["Environmental", "水資源、廢棄物、再生能源比例、產品碳足跡。"],
+        ["Social", "供應商合規、職安事件、教育訓練時數。"],
+        ["Governance", "稽核缺失、政策簽核、資料權限與內控紀錄。"]
+      ],
+      scenarioLabels: {
+        renewablePower: "綠電比例",
+        productionGrowth: "產量變化",
+        compressorEfficiency: "空壓機效率改善",
+        result: "預估年度減碳",
+        ton: "tonCO2e"
+      },
+      maccLabels: {
+        nightOven: "夜間關閉烤箱",
+        smtStandby: "SMT 待機節能",
+        renewablePpa: "綠電 PPA",
+        compressorUpgrade: "空壓機升級",
+        costPerTon: "NTD / tonCO2e",
+        annualReduction: "年度減碳"
+      },
+      assuranceLabels: {
+        sourceEvidence: "來源佐證文件",
+        calculationWorkbook: "計算工作底稿",
+        supplierStatements: "供應商排放聲明",
+        boardApproval: "董事會 / 主管核准",
+        ESGSpecialist: "ESG 專員",
+        Finance: "財務部",
+        Procurement: "採購部",
+        Executive: "主管",
+        reviewing: "審查中",
+        ready: "已就緒",
+        missing: "缺漏",
+        pending: "待核准"
+      },
+      organizationLabels: {
+        company: "台灣智慧製造公司",
+        factoryA: "A 廠",
+        smtLine: "SMT 產線",
+        notebook: "Notebook 產品",
+        factoryB: "B 廠",
+        assemblyLine: "組裝產線"
+      },
+      operationsLabels: {
+        fleetDiesel: "柴油車隊",
+        businessFlights: "商務航班",
+        commuteSurvey: "員工通勤調查",
+        waterWithdrawal: "取水量",
+        wasteRecycle: "廢棄物回收率",
+        hazardousWaste: "有害廢棄物"
+      },
+      disclosureSections: [
+        ["治理", "AI 草稿已建立，待主管審閱。", "引用：ESG 政策、稽核軌跡"],
+        ["策略", "說明供應鏈碳風險與減碳路線。", "引用：Action Plan、Scenario"],
+        ["風險管理", "列出 Notebook 超標與 Scope 3 高風險供應商。", "引用：Supply Chain"],
+        ["指標與目標", "整理 Scope 1/2/3、能源、水、廢棄物指標。", "引用：Dashboard、ESG Metrics"]
+      ],
+      dataTags: ["Scope2", "Notebook", "Factory A", "2026Q2", "auditable", "energy", "supplier", "forecast"],
+      supplierPortalStatuses: {
+        reviewing: "審查中",
+        ready: "已完成",
+        missing: "逾期缺件",
+        pending: "待填報"
+      },
+      copilotPrompts: [
+        "哪個廠區本月用電最高？",
+        "Scope 3 熱點在哪？",
+        "哪個減碳專案 ROI 最好？",
+        "哪些佐證文件還沒準備好？",
+        "如果綠電提高到 50%，年度碳排會降多少？",
+        "哪些供應商需要優先催繳？"
+      ]
     },
     agentSteps: [
       ["Step 1 讀取資料", "ERP / MES / EMS：Notebook、50,000 pcs、250,000 kWh、天然氣 5000 m3"],
@@ -123,6 +369,49 @@ const dictionaries = {
     exportReport: "Generate Audit Report",
     refreshTitle: "Recalculate alerts",
     moduleNav: "System modules",
+    dataHubTitle: "Data Governance and Ingestion Status",
+    dataHubBadge: "5 sources",
+    auditTrailTitle: "Audit Trail",
+    needsReviewBadge: "2 pending review",
+    roleTitle: "Roles and Permissions",
+    roleBadge: "3 roles",
+    dataQualityTitle: "Data Quality Checks",
+    qualityBadge: "Evidence needed",
+    calculationTitle: "Emission Factors and Calculation Model",
+    lineageTitle: "Calculation Transparency",
+    traceableBadge: "Traceable",
+    frameworkTitle: "Reporting Framework Mapping",
+    frameworkBadge: "6 frameworks",
+    sourceTitle: "AI Answer Sources",
+    sourcedBadge: "Sourced",
+    supplyChainTitle: "Scope 3 Supply Chain Risk",
+    supplierRiskBadge: "2 high-risk suppliers",
+    actionPlanTitle: "Reduction Project Tracking",
+    projectBadge: "4 projects",
+    workflowTitle: "Exception Workflow",
+    workflowBadge: "In progress",
+    esgMetricsTitle: "Extended ESG Metrics",
+    metricsBadge: "E / S / G",
+    scenarioTitle: "Scenario Simulator / What-if Analysis",
+    scenarioBadge: "Live estimate",
+    maccTitle: "Marginal Abatement Cost Curve",
+    maccBadge: "Cost ranking",
+    disclosureTitle: "ESG Disclosure Builder",
+    draftBadge: "AI draft",
+    dataTagTitle: "Data Tags and Lineage",
+    tagBadge: "Reusable data",
+    assuranceTitle: "Third-party Assurance Readiness",
+    assuranceBadge: "Under review",
+    organizationTitle: "Organization Roll-up",
+    rollupBadge: "Company / Site / Line / Product",
+    travelTitle: "Travel / Business Trip / Fleet Emissions",
+    fleetBadge: "Operational emissions",
+    waterWasteTitle: "Water Quality / Waste Details",
+    waterWasteBadge: "Needs monitoring",
+    supplierPortalTitle: "Supplier Data Collection Portal",
+    supplierPortalBadge: "3 overdue",
+    copilotTitle: "Natural Language Data Query",
+    copilotBadge: "Prompt library",
     totalCarbon: "Total Carbon",
     totalCarbonHint: "+8% above target, action required",
     scope1Hint: "Natural gas, diesel, LPG",
@@ -145,6 +434,17 @@ const dictionaries = {
     send: "Send",
     normal: "Normal",
     overTarget: "Over",
+    dataFreshness: "Updated",
+    completeness: "Completeness",
+    issueCount: "Issues",
+    owner: "Owner",
+    due: "Due",
+    reduction: "Reduction",
+    cost: "Cost",
+    progress: "Progress",
+    status: "Status",
+    risk: "Risk",
+    action: "Action",
     alertCount: (count) => `${count} alerts`,
     productAlertTitle: (name) => `${name} carbon is over target`,
     productAlertText: (over) => `Carbon > Target, ${over}% over.`,
@@ -158,6 +458,135 @@ const dictionaries = {
       naturalGas: "Natural Gas",
       steam: "Steam",
       renewableEnergy: "Renewable Energy"
+    },
+    optimization: {
+      yesterday: "Yesterday",
+      risks: { critical: "High risk", warning: "Medium risk", normal: "Normal" },
+      costs: { Low: "Low", Medium: "Medium" },
+      statuses: { "In progress": "In progress", Approved: "Approved", Verifying: "Verifying" },
+      suppliers: {
+        "Raw materials": "Raw materials",
+        Transport: "Transport",
+        Packaging: "Packaging",
+        Components: "Components",
+        "Request primary activity data": "Request primary activity data",
+        "Switch route and fuel mix": "Switch route and fuel mix",
+        "Maintain quarterly evidence": "Maintain quarterly evidence",
+        "Start supplier reduction plan": "Start supplier reduction plan"
+      },
+      projects: {
+        "SMT standby optimization": "SMT standby optimization",
+        "Air compressor replacement": "Air compressor replacement",
+        "Renewable energy procurement": "Renewable energy procurement",
+        "Night oven shutdown": "Night oven shutdown",
+        Manufacturing: "Manufacturing",
+        Facility: "Facility",
+        "ESG Office": "ESG Office"
+      },
+      auditTrail: [
+        ["EMS emission factor updated", "ESG specialist Amy applied the 2026 grid emission factor v1.2."],
+        ["Notebook carbon recalculated", "The system recalculated using MES production and EMS electricity data."],
+        ["Excel evidence gap", "Supplier emission statements are missing for purchase material batches."]
+      ],
+      roles: [
+        ["Executive", "View KPI, approve reports, and track improvement progress."],
+        ["ESG Specialist", "Maintain factors, validate data quality, and generate audit reports."],
+        ["Facility / Manufacturing", "Handle exceptions, update actions, and attach evidence."]
+      ],
+      qualityChecks: [
+        ["Data completeness", "Excel and PDF evidence still need supplier statements."],
+        ["Unit consistency", "Energy units are normalized to kWh / m3 / ton."],
+        ["Anomaly detection", "MES output and EMS electricity show 5 high-consumption exceptions."]
+      ],
+      calculationModels: [
+        ["Scope 1", "Natural gas m3 x emission factor 2.05 kgCO2e/m3."],
+        ["Scope 2", "Grid electricity kWh x 2026 regional electricity factor."],
+        ["Product Carbon", "Product carbon = process energy / output + BOM material factors."]
+      ],
+      lineage: ["ERP orders and BOM", "MES output and equipment hours", "EMS energy data", "Emission factor version", "Product carbon result"],
+      frameworks: ["ISO14064", "ISO14067", "GHG Protocol", "TCFD", "ISSB", "SBTi"],
+      sources: [
+        ["Data table", "EMS.energy_usage 2026/06/23 08:31"],
+        ["Document", "Carbon Reduction SOP section 4.2: air system optimization"],
+        ["Standard", "ISO14064-1: organization-level inventory and reporting"]
+      ],
+      workflows: [
+        ["Detect", "Notebook triggered RED ALERT."],
+        ["Assign", "The system assigned Manufacturing and Facility teams."],
+        ["Improve", "SMT standby saving and air system optimization are in progress."],
+        ["Verify", "ESG specialist will confirm 2026Q4 reduction impact."]
+      ],
+      esgMetrics: [
+        ["Environmental", "Water, waste, renewable energy ratio, and product carbon footprint."],
+        ["Social", "Supplier compliance, safety incidents, and training hours."],
+        ["Governance", "Audit findings, policy approvals, data permissions, and internal controls."]
+      ],
+      scenarioLabels: {
+        renewablePower: "Renewable power ratio",
+        productionGrowth: "Production change",
+        compressorEfficiency: "Compressor efficiency gain",
+        result: "Estimated annual reduction",
+        ton: "tonCO2e"
+      },
+      maccLabels: {
+        nightOven: "Night oven shutdown",
+        smtStandby: "SMT standby saving",
+        renewablePpa: "Renewable PPA",
+        compressorUpgrade: "Compressor upgrade",
+        costPerTon: "NTD / tonCO2e",
+        annualReduction: "Annual reduction"
+      },
+      assuranceLabels: {
+        sourceEvidence: "Source evidence files",
+        calculationWorkbook: "Calculation workbook",
+        supplierStatements: "Supplier emission statements",
+        boardApproval: "Board / executive approval",
+        ESGSpecialist: "ESG Specialist",
+        Finance: "Finance",
+        Procurement: "Procurement",
+        Executive: "Executive",
+        reviewing: "Reviewing",
+        ready: "Ready",
+        missing: "Missing",
+        pending: "Pending"
+      },
+      organizationLabels: {
+        company: "Taiwan Smart Manufacturing Co.",
+        factoryA: "Factory A",
+        smtLine: "SMT Line",
+        notebook: "Notebook Product",
+        factoryB: "Factory B",
+        assemblyLine: "Assembly Line"
+      },
+      operationsLabels: {
+        fleetDiesel: "Diesel fleet",
+        businessFlights: "Business flights",
+        commuteSurvey: "Employee commute survey",
+        waterWithdrawal: "Water withdrawal",
+        wasteRecycle: "Waste recycling rate",
+        hazardousWaste: "Hazardous waste"
+      },
+      disclosureSections: [
+        ["Governance", "AI draft created, pending executive review.", "Source: ESG policy, audit trail"],
+        ["Strategy", "Explain supply chain carbon risk and reduction roadmap.", "Source: Action Plan, Scenario"],
+        ["Risk Management", "List Notebook exceptions and high-risk Scope 3 suppliers.", "Source: Supply Chain"],
+        ["Metrics and Targets", "Summarize Scope 1/2/3, energy, water, and waste metrics.", "Source: Dashboard, ESG Metrics"]
+      ],
+      dataTags: ["Scope2", "Notebook", "Factory A", "2026Q2", "auditable", "energy", "supplier", "forecast"],
+      supplierPortalStatuses: {
+        reviewing: "Reviewing",
+        ready: "Complete",
+        missing: "Overdue",
+        pending: "Pending"
+      },
+      copilotPrompts: [
+        "Which site used the most electricity this month?",
+        "Where are the Scope 3 hotspots?",
+        "Which reduction project has the best ROI?",
+        "Which evidence files are not ready?",
+        "If renewable power rises to 50%, how much annual carbon falls?",
+        "Which suppliers should be reminded first?"
+      ]
     },
     agentSteps: [
       ["Step 1 Read data", "ERP / MES / EMS: Notebook, 50,000 pcs, 250,000 kWh, natural gas 5000 m3"],
@@ -391,6 +820,200 @@ function renderKnowledge(filter = "") {
   </article>`).join("");
 }
 
+function translateOptimization(value, group) {
+  return t("optimization")[group]?.[value] || value;
+}
+
+function renderDataHub() {
+  document.querySelector("#dataSourceList").innerHTML = optimizationData.dataSources.map((source) => {
+    const freshness = source.freshness === "Yesterday" ? t("optimization").yesterday : source.freshness;
+    return `<div class="ops-row">
+      <div>
+        <strong>${source.key}</strong>
+        <p class="muted">${t("dataFreshness")}: ${freshness}</p>
+      </div>
+      <span>${t("completeness")}: ${source.completeness}%</span>
+      <span>${t("issueCount")}: ${source.issues}</span>
+      <span class="status ${source.status}">${t("optimization").risks[source.status]}</span>
+    </div>`;
+  }).join("");
+
+  document.querySelector("#auditTrailList").innerHTML = t("optimization").auditTrail.map(([title, text]) => `<div class="timeline-item">
+    <strong>${title}</strong>
+    <p class="muted">${text}</p>
+  </div>`).join("");
+
+  document.querySelector("#roleGrid").innerHTML = t("optimization").roles.map(([role, text]) => `<article class="knowledge-item">
+    <strong>${role}</strong>
+    <p>${text}</p>
+  </article>`).join("");
+
+  document.querySelector("#qualityList").innerHTML = t("optimization").qualityChecks.map(([title, text]) => `<div class="alert-item warning">
+    <strong>${title}</strong>
+    <p class="muted">${text}</p>
+  </div>`).join("");
+}
+
+function renderCalculation() {
+  document.querySelector("#calculationModelList").innerHTML = t("optimization").calculationModels.map(([title, text]) => `<div class="agent-step">
+    <strong>${title}</strong>
+    <span class="muted">${text}</span>
+  </div>`).join("");
+
+  document.querySelector("#lineageFlow").innerHTML = t("optimization").lineage.map((item, index) => `<div class="lineage-step">
+    <span>${index + 1}</span>
+    <strong>${item}</strong>
+  </div>`).join("");
+
+  document.querySelector("#frameworkGrid").innerHTML = t("optimization").frameworks.map((framework) => `<div class="framework-pill">${framework}</div>`).join("");
+
+  document.querySelector("#sourceList").innerHTML = t("optimization").sources.map(([type, detail]) => `<div class="source-item">
+    <strong>${type}</strong>
+    <p class="muted">${detail}</p>
+  </div>`).join("");
+}
+
+function renderSupplyChain() {
+  document.querySelector("#supplierList").innerHTML = optimizationData.suppliers.map((supplier) => `<div class="supplier-row">
+    <div>
+      <strong>${supplier.name}</strong>
+      <p class="muted">${translateOptimization(supplier.category, "suppliers")}</p>
+    </div>
+    <span>${supplier.emissions} tonCO2e</span>
+    <span class="status ${supplier.risk}">${t("optimization").risks[supplier.risk]}</span>
+    <span>${translateOptimization(supplier.action, "suppliers")}</span>
+  </div>`).join("");
+}
+
+function renderActionPlan() {
+  document.querySelector("#projectList").innerHTML = optimizationData.projects.map((project) => `<div class="project-row">
+    <div>
+      <strong>${translateOptimization(project.name, "projects")}</strong>
+      <p class="muted">${t("owner")}: ${translateOptimization(project.owner, "projects")} · ${t("due")}: ${project.due}</p>
+      <div class="bar"><span style="width:${project.progress}%"></span></div>
+    </div>
+    <span>${t("reduction")}: ${project.reduction}</span>
+    <span>${t("cost")}: ${translateOptimization(project.cost, "costs")}</span>
+    <span class="status normal">${translateOptimization(project.status, "statuses")}</span>
+  </div>`).join("");
+
+  document.querySelector("#workflowList").innerHTML = t("optimization").workflows.map(([stage, text]) => `<div class="timeline-item">
+    <strong>${stage}</strong>
+    <p class="muted">${text}</p>
+  </div>`).join("");
+}
+
+function renderEsgMetrics() {
+  document.querySelector("#metricExtensionGrid").innerHTML = t("optimization").esgMetrics.map(([title, text]) => `<article class="metric-extension">
+    <strong>${title}</strong>
+    <p>${text}</p>
+  </article>`).join("");
+}
+
+function renderScenario() {
+  const labels = t("optimization").scenarioLabels;
+  const totalReduction = optimizationData.scenarios.reduce((sum, item) => {
+    return sum + item.value * item.impact;
+  }, 0);
+
+  document.querySelector("#scenarioControls").innerHTML = optimizationData.scenarios.map((item) => `<label class="scenario-control">
+    <span>${labels[item.key]}</span>
+    <input type="range" min="${item.min}" max="${item.max}" value="${item.value}" data-scenario="${item.key}">
+    <strong>${item.value}%</strong>
+  </label>`).join("") + `<div class="scenario-result">
+    <span>${labels.result}</span>
+    <strong>${Math.round(totalReduction * 10)} ${labels.ton}</strong>
+  </div>`;
+
+  document.querySelectorAll("[data-scenario]").forEach((slider) => {
+    slider.addEventListener("input", (event) => {
+      const target = optimizationData.scenarios.find((item) => item.key === event.target.dataset.scenario);
+      target.value = Number(event.target.value);
+      renderScenario();
+    });
+  });
+}
+
+function renderMacc() {
+  const labels = t("optimization").maccLabels;
+  document.querySelector("#maccList").innerHTML = optimizationData.macc.map((item) => `<div class="macc-row">
+    <div>
+      <strong>${item.rank}. ${labels[item.key]}</strong>
+      <p class="muted">${labels.annualReduction}: ${item.reduction} tonCO2e</p>
+    </div>
+    <span>${labels.costPerTon}</span>
+    <strong>${formatNumber(item.cost)}</strong>
+  </div>`).join("");
+}
+
+function renderDisclosure() {
+  document.querySelector("#disclosureList").innerHTML = t("optimization").disclosureSections.map(([title, draft, source]) => `<article class="disclosure-section">
+    <strong>${title}</strong>
+    <p>${draft}</p>
+    <span class="muted">${source}</span>
+  </article>`).join("");
+
+  document.querySelector("#dataTagGrid").innerHTML = t("optimization").dataTags.map((tag) => `<span class="tag-pill">${tag}</span>`).join("");
+}
+
+function renderAssurance() {
+  const labels = t("optimization").assuranceLabels;
+  document.querySelector("#assuranceList").innerHTML = optimizationData.assurance.map((item) => {
+    const statusClass = item.status === "ready" ? "normal" : item.status === "missing" ? "critical" : "warning";
+    return `<div class="assurance-row">
+      <div>
+        <strong>${labels[item.key]}</strong>
+        <p class="muted">${t("owner")}: ${labels[item.owner.replace(/\s/g, "")] || item.owner}</p>
+      </div>
+      <span class="status ${statusClass}">${labels[item.status]}</span>
+    </div>`;
+  }).join("");
+}
+
+function renderOrganization() {
+  const labels = t("optimization").organizationLabels;
+  document.querySelector("#orgTree").innerHTML = optimizationData.organization.map((item) => `<div class="org-row level-${item.level}">
+    <strong>${labels[item.key]}</strong>
+    <span>${item.carbon} tonCO2e</span>
+  </div>`).join("");
+}
+
+function renderOperations() {
+  const labels = t("optimization").operationsLabels;
+  document.querySelector("#travelFleetList").innerHTML = optimizationData.travelFleet.map((item) => `<div class="ops-card">
+    <strong>${labels[item.key]}</strong>
+    <span>${item.activity}</span>
+    <span>${item.carbon} tonCO2e</span>
+    <span class="status ${item.status}">${t("optimization").risks[item.status]}</span>
+  </div>`).join("");
+
+  document.querySelector("#waterWasteList").innerHTML = optimizationData.waterWaste.map((item) => `<div class="ops-card">
+    <strong>${labels[item.key]}</strong>
+    <span>${item.value}</span>
+    <span class="status ${item.status}">${t("optimization").risks[item.status]}</span>
+  </div>`).join("");
+}
+
+function renderSupplierPortal() {
+  const statuses = t("optimization").supplierPortalStatuses;
+  document.querySelector("#supplierPortalList").innerHTML = optimizationData.supplierPortal.map((supplier) => {
+    const statusClass = supplier.status === "ready" ? "normal" : supplier.status === "missing" ? "critical" : "warning";
+    return `<div class="supplier-portal-row">
+      <div>
+        <strong>${supplier.name}</strong>
+        <p class="muted">${t("due")}: ${supplier.due}</p>
+        <div class="bar"><span style="width:${supplier.completion}%"></span></div>
+      </div>
+      <span>${supplier.completion}%</span>
+      <span class="status ${statusClass}">${statuses[supplier.status]}</span>
+    </div>`;
+  }).join("");
+}
+
+function renderCopilotPrompts() {
+  document.querySelector("#copilotPromptGrid").innerHTML = t("optimization").copilotPrompts.map((prompt) => `<button class="prompt-button" type="button">${prompt}</button>`).join("");
+}
+
 function addMessage(text, role = "assistant") {
   const log = document.querySelector("#chatLog");
   const message = document.createElement("div");
@@ -425,6 +1048,19 @@ function renderAll() {
   renderTrendChart();
   renderAgent();
   renderKnowledge(document.querySelector("#ragSearch").value);
+  renderDataHub();
+  renderCalculation();
+  renderSupplyChain();
+  renderActionPlan();
+  renderEsgMetrics();
+  renderScenario();
+  renderMacc();
+  renderDisclosure();
+  renderAssurance();
+  renderOrganization();
+  renderOperations();
+  renderSupplierPortal();
+  renderCopilotPrompts();
   document.querySelector("#auditReport").textContent = t("reportText");
 }
 

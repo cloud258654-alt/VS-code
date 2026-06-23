@@ -25,6 +25,18 @@
   <main class="layout">
     <aside class="sidebar" aria-label="系統模組" data-i18n-aria-label="moduleNav">
       <button class="nav-item is-active" data-view="dashboard" type="button">Dashboard</button>
+      <button class="nav-item" data-view="dataHub" type="button">Data Hub</button>
+      <button class="nav-item" data-view="calculation" type="button">Calculation</button>
+      <button class="nav-item" data-view="supplyChain" type="button">Supply Chain</button>
+      <button class="nav-item" data-view="actionPlan" type="button">Action Plan</button>
+      <button class="nav-item" data-view="esgMetrics" type="button">ESG Metrics</button>
+      <button class="nav-item" data-view="scenario" type="button">Scenario</button>
+      <button class="nav-item" data-view="disclosure" type="button">Disclosure</button>
+      <button class="nav-item" data-view="assurance" type="button">Assurance</button>
+      <button class="nav-item" data-view="organization" type="button">Organization</button>
+      <button class="nav-item" data-view="operations" type="button">Operations</button>
+      <button class="nav-item" data-view="supplierPortal" type="button">Supplier Portal</button>
+      <button class="nav-item" data-view="copilot" type="button">Copilot</button>
       <button class="nav-item" data-view="agent" type="button">AI Agent</button>
       <button class="nav-item" data-view="rag" type="button">RAG Knowledge</button>
       <button class="nav-item" data-view="line" type="button">LINE Assistant</button>
@@ -88,6 +100,208 @@
             </div>
             <div class="alert-list" id="alertList"></div>
           </section>
+        </div>
+      </section>
+
+      <section class="view" id="dataHub">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="dataHubTitle">資料治理與匯入狀態</h2>
+              <span class="status normal" data-i18n="dataHubBadge">5 個來源</span>
+            </div>
+            <div class="data-list" id="dataSourceList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="auditTrailTitle">稽核軌跡</h2>
+              <span class="status warning" data-i18n="needsReviewBadge">2 筆待確認</span>
+            </div>
+            <div class="timeline-list" id="auditTrailList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="roleTitle">角色與權限</h2>
+              <span class="status normal" data-i18n="roleBadge">3 種角色</span>
+            </div>
+            <div class="role-grid" id="roleGrid"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="dataQualityTitle">資料品質檢查</h2>
+              <span class="status warning" data-i18n="qualityBadge">需補件</span>
+            </div>
+            <div class="quality-list" id="qualityList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="calculation">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="calculationTitle">排放係數與計算模型</h2>
+              <span class="status normal">GHG Protocol</span>
+            </div>
+            <div class="model-list" id="calculationModelList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="lineageTitle">計算透明度</h2>
+              <span class="status normal" data-i18n="traceableBadge">可追溯</span>
+            </div>
+            <div class="lineage-flow" id="lineageFlow"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="frameworkTitle">報告框架映射</h2>
+              <span class="status normal" data-i18n="frameworkBadge">6 個框架</span>
+            </div>
+            <div class="framework-grid" id="frameworkGrid"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="sourceTitle">AI 回答引用來源</h2>
+              <span class="status normal" data-i18n="sourcedBadge">附來源</span>
+            </div>
+            <div class="source-list" id="sourceList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="supplyChain">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="supplyChainTitle">Scope 3 供應鏈風險</h2>
+            <span class="status critical" data-i18n="supplierRiskBadge">2 家高風險</span>
+          </div>
+          <div class="supplier-list" id="supplierList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="actionPlan">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="actionPlanTitle">減碳專案追蹤</h2>
+              <span class="status normal" data-i18n="projectBadge">4 個專案</span>
+            </div>
+            <div class="project-list" id="projectList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="workflowTitle">異常處理 Workflow</h2>
+              <span class="status warning" data-i18n="workflowBadge">處理中</span>
+            </div>
+            <div class="workflow-list" id="workflowList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="esgMetrics">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="esgMetricsTitle">延伸 ESG 指標</h2>
+            <span class="status normal" data-i18n="metricsBadge">E / S / G</span>
+          </div>
+          <div class="metric-extension-grid" id="metricExtensionGrid"></div>
+        </div>
+      </section>
+
+      <section class="view" id="scenario">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="scenarioTitle">情境模擬 / What-if Analysis</h2>
+              <span class="status normal" data-i18n="scenarioBadge">即時計算</span>
+            </div>
+            <div class="slider-list" id="scenarioControls"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="maccTitle">邊際減碳成本 MACC</h2>
+              <span class="status normal" data-i18n="maccBadge">成本排序</span>
+            </div>
+            <div class="macc-list" id="maccList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="disclosure">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="disclosureTitle">ESG 報告編輯器</h2>
+              <span class="status warning" data-i18n="draftBadge">AI 草稿</span>
+            </div>
+            <div class="disclosure-list" id="disclosureList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="dataTagTitle">資料標籤與血緣</h2>
+              <span class="status normal" data-i18n="tagBadge">可重用資料</span>
+            </div>
+            <div class="tag-grid" id="dataTagGrid"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="assurance">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="assuranceTitle">第三方確信準備</h2>
+            <span class="status warning" data-i18n="assuranceBadge">查核中</span>
+          </div>
+          <div class="assurance-list" id="assuranceList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="organization">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="organizationTitle">組織層級 Roll-up</h2>
+            <span class="status normal" data-i18n="rollupBadge">公司 / 廠區 / 產線 / 產品</span>
+          </div>
+          <div class="org-tree" id="orgTree"></div>
+        </div>
+      </section>
+
+      <section class="view" id="operations">
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="travelTitle">交通 / 商旅 / 車隊排放</h2>
+              <span class="status normal" data-i18n="fleetBadge">營運排放</span>
+            </div>
+            <div class="ops-table" id="travelFleetList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h2 data-i18n="waterWasteTitle">水質 / 廢棄物細節</h2>
+              <span class="status warning" data-i18n="waterWasteBadge">需監控</span>
+            </div>
+            <div class="ops-table" id="waterWasteList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="supplierPortal">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="supplierPortalTitle">供應商資料收集 Portal</h2>
+            <span class="status critical" data-i18n="supplierPortalBadge">3 件逾期</span>
+          </div>
+          <div class="supplier-portal-list" id="supplierPortalList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="copilot">
+        <div class="panel">
+          <div class="panel-title">
+            <h2 data-i18n="copilotTitle">自然語言資料查詢</h2>
+            <span class="status normal" data-i18n="copilotBadge">常見問題</span>
+          </div>
+          <div class="prompt-grid" id="copilotPromptGrid"></div>
         </div>
       </section>
 

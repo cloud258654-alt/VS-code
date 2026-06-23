@@ -267,7 +267,22 @@ canvas {
 .alert-item,
 .agent-step,
 .recommendation,
-.knowledge-item {
+.knowledge-item,
+.ops-row,
+.timeline-item,
+.lineage-step,
+.source-item,
+.supplier-row,
+.project-row,
+.metric-extension,
+.scenario-control,
+.scenario-result,
+.macc-row,
+.disclosure-section,
+.assurance-row,
+.org-row,
+.ops-card,
+.supplier-portal-row {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #fbfcfb;
@@ -278,7 +293,22 @@ canvas {
 .alert-item,
 .agent-step,
 .recommendation,
-.knowledge-item {
+.knowledge-item,
+.ops-row,
+.timeline-item,
+.lineage-step,
+.source-item,
+.supplier-row,
+.project-row,
+.metric-extension,
+.scenario-control,
+.scenario-result,
+.macc-row,
+.disclosure-section,
+.assurance-row,
+.org-row,
+.ops-card,
+.supplier-portal-row {
   padding: 12px;
 }
 
@@ -309,7 +339,26 @@ canvas {
 .alert-list,
 .agent-flow,
 .recommendations,
-.knowledge-grid {
+.knowledge-grid,
+.data-list,
+.timeline-list,
+.role-grid,
+.quality-list,
+.model-list,
+.lineage-flow,
+.source-list,
+.supplier-list,
+.project-list,
+.workflow-list,
+.metric-extension-grid,
+.slider-list,
+.macc-list,
+.disclosure-list,
+.assurance-list,
+.org-tree,
+.ops-table,
+.supplier-portal-list,
+.prompt-grid {
   display: grid;
   gap: 10px;
 }
@@ -331,6 +380,170 @@ canvas {
 
 .knowledge-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.role-grid,
+.framework-grid,
+.metric-extension-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ops-row,
+.supplier-row,
+.project-row {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+}
+
+.ops-row {
+  grid-template-columns: minmax(160px, 1fr) 140px 110px 110px;
+}
+
+.supplier-row {
+  grid-template-columns: minmax(190px, 1fr) 130px 130px minmax(180px, 1fr);
+}
+
+.project-row {
+  grid-template-columns: minmax(220px, 1fr) 110px 90px 110px;
+}
+
+.lineage-flow {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.lineage-step {
+  min-height: 104px;
+}
+
+.lineage-step span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 10px;
+  color: #fff;
+  background: var(--teal);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.framework-grid {
+  gap: 8px;
+}
+
+.framework-pill {
+  min-height: 42px;
+  padding: 10px 12px;
+  color: var(--teal);
+  background: #e4f2ef;
+  border: 1px solid #c7e0da;
+  border-radius: 6px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.metric-extension {
+  min-height: 140px;
+}
+
+.scenario-control,
+.scenario-result,
+.macc-row,
+.assurance-row,
+.supplier-portal-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 160px 120px;
+  gap: 12px;
+  align-items: center;
+}
+
+.scenario-control input {
+  width: 100%;
+  accent-color: var(--green);
+}
+
+.scenario-result {
+  color: #fff;
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.scenario-result .muted {
+  color: #d8efeb;
+}
+
+.macc-row {
+  grid-template-columns: minmax(220px, 1fr) 140px 90px;
+}
+
+.disclosure-section {
+  min-height: 128px;
+}
+
+.tag-grid,
+.prompt-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-pill,
+.prompt-button {
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.tag-pill {
+  color: var(--teal);
+  background: #e4f2ef;
+  border: 1px solid #c7e0da;
+}
+
+.prompt-button {
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.prompt-button:hover {
+  border-color: var(--green);
+}
+
+.org-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.org-row.level-2 {
+  margin-left: 24px;
+}
+
+.org-row.level-3 {
+  margin-left: 48px;
+}
+
+.org-row.level-4 {
+  margin-left: 72px;
+}
+
+.ops-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 110px 110px 110px;
+  gap: 12px;
+  align-items: center;
+}
+
+#waterWasteList .ops-card {
+  grid-template-columns: minmax(180px, 1fr) 140px 110px;
 }
 
 #ragSearch,
@@ -440,13 +653,33 @@ pre {
   }
 
   .metric-grid,
-  .knowledge-grid {
+  .knowledge-grid,
+  .role-grid,
+  .framework-grid,
+  .metric-extension-grid,
+  .lineage-flow {
     grid-template-columns: 1fr;
   }
 
   .product-row,
-  .energy-row {
+  .energy-row,
+  .ops-row,
+  .supplier-row,
+  .project-row,
+  .scenario-control,
+  .scenario-result,
+  .macc-row,
+  .assurance-row,
+  .supplier-portal-row,
+  .ops-card,
+  #waterWasteList .ops-card {
     grid-template-columns: 1fr;
+  }
+
+  .org-row.level-2,
+  .org-row.level-3,
+  .org-row.level-4 {
+    margin-left: 0;
   }
 
   .panel-title,
