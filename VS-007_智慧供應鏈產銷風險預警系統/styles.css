@@ -85,9 +85,34 @@ h2 {
 
 .primary-button,
 .icon-button,
-.nav-item {
+.nav-item,
+.lang-button {
   border: 0;
   cursor: pointer;
+}
+
+.language-switch {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  width: 86px;
+  height: 40px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 6px;
+}
+
+.lang-button {
+  color: #dcebe2;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.lang-button.is-active {
+  color: #143323;
+  background: #f8fbf7;
 }
 
 .primary-button {

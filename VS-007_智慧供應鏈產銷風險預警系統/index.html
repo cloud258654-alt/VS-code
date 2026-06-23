@@ -10,16 +10,20 @@
   <header class="app-header">
     <div>
       <p class="eyebrow">AI ESG Copilot Platform v1.0</p>
-      <h1>智慧碳排與能耗風險預警暨 AI 決策平台</h1>
+      <h1 data-i18n="heroTitle">智慧碳排與能耗風險預警暨 AI 決策平台</h1>
     </div>
     <div class="header-actions">
-      <button class="icon-button" id="refreshButton" type="button" title="重新計算預警">↻</button>
-      <button class="primary-button" id="exportButton" type="button">產生稽核報告</button>
+      <div class="language-switch" aria-label="Language switch">
+        <button class="lang-button is-active" data-lang="zh" type="button">中</button>
+        <button class="lang-button" data-lang="en" type="button">EN</button>
+      </div>
+      <button class="icon-button" id="refreshButton" type="button" title="重新計算預警" data-i18n-title="refreshTitle">↻</button>
+      <button class="primary-button" id="exportButton" type="button" data-i18n="exportReport">產生稽核報告</button>
     </div>
   </header>
 
   <main class="layout">
-    <aside class="sidebar" aria-label="系統模組">
+    <aside class="sidebar" aria-label="系統模組" data-i18n-aria-label="moduleNav">
       <button class="nav-item is-active" data-view="dashboard" type="button">Dashboard</button>
       <button class="nav-item" data-view="agent" type="button">AI Agent</button>
       <button class="nav-item" data-view="rag" type="button">RAG Knowledge</button>
@@ -31,55 +35,55 @@
       <section class="view is-active" id="dashboard">
         <div class="metric-grid">
           <article class="metric-card alert">
-            <span>總碳排</span>
+            <span data-i18n="totalCarbon">總碳排</span>
             <strong>3,250 tonCO2e</strong>
-            <small>較目標 +8%，需要處理</small>
+            <small data-i18n="totalCarbonHint">較目標 +8%，需要處理</small>
           </article>
           <article class="metric-card">
             <span>Scope 1</span>
             <strong>860 tonCO2e</strong>
-            <small>天然氣、柴油、LPG</small>
+            <small data-i18n="scope1Hint">天然氣、柴油、LPG</small>
           </article>
           <article class="metric-card">
             <span>Scope 2</span>
             <strong>1,740 tonCO2e</strong>
-            <small>台電用電</small>
+            <small data-i18n="scope2Hint">台電用電</small>
           </article>
           <article class="metric-card">
             <span>Scope 3</span>
             <strong>650 tonCO2e</strong>
-            <small>原料、運輸、包裝、廢棄物</small>
+            <small data-i18n="scope3Hint">原料、運輸、包裝、廢棄物</small>
           </article>
         </div>
 
         <div class="dashboard-grid">
           <section class="panel">
             <div class="panel-title">
-              <h2>產品碳排強度</h2>
-              <span class="status critical">2 項超標</span>
+              <h2 data-i18n="productCarbonTitle">產品碳排強度</h2>
+              <span class="status critical" data-i18n="twoOverTarget">2 項超標</span>
             </div>
             <div class="product-table" id="productTable"></div>
           </section>
 
           <section class="panel">
             <div class="panel-title">
-              <h2>碳排趨勢</h2>
-              <span class="status warning">連續上升</span>
+              <h2 data-i18n="carbonTrendTitle">碳排趨勢</h2>
+              <span class="status warning" data-i18n="risingTrend">連續上升</span>
             </div>
-            <canvas id="trendChart" width="620" height="280" aria-label="碳排趨勢圖"></canvas>
+            <canvas id="trendChart" width="620" height="280" aria-label="碳排趨勢圖" data-i18n-aria-label="trendChartLabel"></canvas>
           </section>
 
           <section class="panel">
             <div class="panel-title">
-              <h2>能源管理</h2>
-              <span class="status normal">即時監控</span>
+              <h2 data-i18n="energyTitle">能源管理</h2>
+              <span class="status normal" data-i18n="realtimeMonitor">即時監控</span>
             </div>
             <div class="energy-list" id="energyList"></div>
           </section>
 
           <section class="panel">
             <div class="panel-title">
-              <h2>異常預警</h2>
+              <h2 data-i18n="alertTitle">異常預警</h2>
               <span class="status critical" id="alertCount">0 則</span>
             </div>
             <div class="alert-list" id="alertList"></div>
@@ -98,8 +102,8 @@
           </section>
           <section class="panel">
             <div class="panel-title">
-              <h2>AI 減碳建議</h2>
-              <span class="status normal">預估 -22%</span>
+              <h2 data-i18n="recommendationTitle">AI 減碳建議</h2>
+              <span class="status normal" data-i18n="estimatedReduction">預估 -22%</span>
             </div>
             <div class="recommendations" id="recommendations"></div>
           </section>
@@ -109,8 +113,8 @@
       <section class="view" id="rag">
         <div class="panel">
           <div class="panel-title">
-            <h2>RAG ESG 知識庫</h2>
-            <input id="ragSearch" type="search" placeholder="搜尋 ISO、SOP、稽核案例">
+            <h2 data-i18n="ragTitle">RAG ESG 知識庫</h2>
+            <input id="ragSearch" type="search" placeholder="搜尋 ISO、SOP、稽核案例" data-i18n-placeholder="ragPlaceholder">
           </div>
           <div class="knowledge-grid" id="knowledgeGrid"></div>
         </div>
@@ -120,12 +124,12 @@
         <div class="chat-shell">
           <div class="chat-header">
             <h2>LINE AI Assistant</h2>
-            <span class="status normal">主管問答</span>
+            <span class="status normal" data-i18n="managerQa">主管問答</span>
           </div>
           <div class="chat-log" id="chatLog"></div>
           <form class="chat-form" id="chatForm">
-            <input id="chatInput" type="text" value="Notebook 為什麼超標？" aria-label="輸入問題">
-            <button class="primary-button" type="submit">送出</button>
+            <input id="chatInput" type="text" value="Notebook 為什麼超標？" aria-label="輸入問題" data-i18n-aria-label="questionInput">
+            <button class="primary-button" type="submit" data-i18n="send">送出</button>
           </form>
         </div>
       </section>
